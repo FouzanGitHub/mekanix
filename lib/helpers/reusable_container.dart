@@ -10,6 +10,8 @@ class ReUsableContainer extends StatelessWidget {
   final bool showBackgroundShadow;
   final bool showDeleteIcon;
   final VoidCallback? onDelete;
+  final bool showEditIcon;
+  final VoidCallback? onEdit;
   final Color? color;
   final double? height;
   final double? width;
@@ -25,6 +27,8 @@ class ReUsableContainer extends StatelessWidget {
     this.showBackgroundShadow = true,
     this.showDeleteIcon = false,
     this.onDelete,
+    this.showEditIcon = false,
+    this.onEdit,
     this.color,
   });
 
@@ -47,7 +51,19 @@ class ReUsableContainer extends StatelessWidget {
                     color: Colors.red,
                   ),
                 )),
-          )
+          ),
+            Visibility(
+            visible: showEditIcon,
+            child: Positioned(
+                right: 35,
+                child: IconButton(
+                  onPressed: onEdit,
+                  icon: const Icon(
+                    Icons.edit,
+                    color: Colors.grey,
+                  ),
+                )),
+          ) 
         ],
       ),
     );

@@ -9,6 +9,10 @@ class CustomCheckboxWidget extends StatelessWidget {
   final List<String> options, selected;
   final bool showDeleteIcon;
   final VoidCallback? onDelete;
+  final bool showEditIcon;
+  final VoidCallback? onEdit;
+   final bool showEditTitle;
+  final VoidCallback? onEditTitle; 
   final Function(List<String>) onChange;
 
   const CustomCheckboxWidget({
@@ -19,6 +23,10 @@ class CustomCheckboxWidget extends StatelessWidget {
     required this.onChange,
     this.showDeleteIcon = false,
     this.onDelete,
+    this.showEditIcon = false,
+      this.onEditTitle,
+    this.showEditTitle = false,
+    this.onEdit,
   });
 
   @override
@@ -27,16 +35,44 @@ class CustomCheckboxWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomTextWidget(
-          text: heading,
-          fontWeight: FontWeight.w500,
-          maxLines: 2,
-          fontSize: 12,
-        ),
+         InkWell(
+              onTap: onEditTitle,
+              child: Row(
+             
+                children: [
+                Visibility(
+                visible: showEditTitle,
+                child: const Icon(Icons.edit,color: Colors.grey,size: 18,)),
+                  const SizedBox(width: 1),
+                  SizedBox(
+                 
+                width: 270,
+                    child: CustomTextWidget(
+                    text: heading,
+                    fontWeight: FontWeight.w500,
+                    maxLines: 2,
+                    fontSize:  12,
+                                  ),
+                  ),
+                ],
+              ),
+            ),
+        // InkWell(
+        //   onTap: onEditTitle,
+        //   child: CustomTextWidget(
+        //     text: heading,
+        //     fontWeight: FontWeight.w500,
+        //     maxLines: 2,
+        //     fontSize: 12,
+        //   ),
+        // ),
         Obx(
           () => ReUsableContainer(
             showDeleteIcon: showDeleteIcon,
             onDelete: onDelete,
+            showEditIcon: showDeleteIcon,
+            onEdit: onEdit,
+
             child: Column(
               children: options
                   .map((option) => CheckboxListTile(

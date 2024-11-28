@@ -34,10 +34,10 @@ class MyAttachmentModel {
 class CustomTaskScreen extends StatefulWidget {
   final bool isTemplate;
   final bool isDefault;
-  final String reportName;
+  String reportName;
   final MyCustomTask? task;
 
-  const CustomTaskScreen({
+  CustomTaskScreen({
     super.key,
     this.task,
     required this.isTemplate,
@@ -58,6 +58,8 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
   final _radioController = TextEditingController();
   final _customerNameController = TextEditingController();
   final _customerEmailController = TextEditingController();
+  final _editNameController = TextEditingController();
+  final _editTitleController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _validateEmail = GlobalKey<FormState>();
 
@@ -74,7 +76,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
   void initState() {
     _task = Rx<MyCustomTask>(widget.task ??
         MyCustomTask(
-            name:widget.reportName,
+            name: widget.reportName,
             customerName: _customerNameController.text.trim(),
             customerEmail: _customerEmailController.text.trim(),
             pages: <MyPage>[MyPage(sections: [])],
@@ -111,11 +113,70 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                   forceMaterialTransparency: true,
                   expandedHeight: context.height * 0.1,
                   flexibleSpace: Center(
-                    child: CustomTextWidget(
-                      text: widget.reportName,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w600,
-                      textColor: Colors.white,
+                    child: InkWell(
+                      onTap: () {
+                        showCustomPopup(
+                          context: context,
+                          width: context.width * 0.8,
+                          widget: Form(
+                            key: _validateEmail,
+                            child: Column(
+                              children: [
+                                const CustomTextWidget(
+                                  text: 'Edit Name',
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                HeadingAndTextfield(
+                                  title: 'Enter Name',
+                                  controller: _editNameController,
+                                  hintText: 'Enter Name',
+                                  validator: (val) =>
+                                      AppValidator.validateEmail(value: val),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                CustomButton(
+                                  buttonText: 'Done',
+                                  onTap: () {
+                                    setState(() {
+                                      widget.reportName =
+                                          _editNameController.text.trim();
+                                      _task.value.name =
+                                          _editNameController.text.trim();
+                                    });
+
+                                    Navigator.pop(context); // Close the popup
+                                  },
+                                  isLoading: false,
+                                  usePrimaryColor: false,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                          ),
+                          CustomTextWidget(
+                            text: widget.reportName,
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w600,
+                            textColor: Colors.white,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -347,26 +408,71 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                       children: [
                         ContainerHeading(
                           heading: section.heading,
+                          headingTap: () {
+                            showCustomPopup(
+                              context: context,
+                              width: context.width * 0.8,
+                              widget: Form(
+                                key: _validateEmail,
+                                child: Column(
+                                  children: [
+                                    const CustomTextWidget(
+                                      text: 'Edit Heading',
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
+                                      maxLines: 1,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    HeadingAndTextfield(
+                                      title: 'New Heading Name',
+                                      controller: _editNameController,
+                                      hintText: 'Enter Heading Name',
+                                      validator: (val) =>
+                                          AppValidator.validateEmail(
+                                              value: val),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    CustomButton(
+                                      buttonText: 'Done',
+                                      onTap: () {
+                                        setState(() {
+                                          _task.value.pages[currentPage]
+                                                  .sections[index].heading =
+                                              _editNameController.text.trim();
+                                        });
+                                        Get.back();
+                                      },
+                                      isLoading: false,
+                                      usePrimaryColor: false,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                           // showIcons: true,
                           showIcons: _task.value.isDefault ? true : true,
                           onAdd: () {
                             _hintTextController.clear();
-                            showAddElementPopup(context,index, false,false, sectionIndex: index);
+                            showAddElementPopup(context, index, false, false,
+                                sectionIndex: index);
+                            _task.refresh();
                           },
                           onDelete: () {
-                 
-                      
                             _task.value.pages[currentPage].sections
                                 .removeAt(index);
                             _task.refresh();
                           },
                         ),
-                        
                         _buildSectionElements(
                           index,
                           currentPage,
                         ),
-                        
                       ],
                     ),
                   ),
@@ -524,7 +630,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                         ? widget.isTemplate
                             ? 'Add Template'
                             : 'Submit Task'
-                            :  _task.value.isDefault
+                        : _task.value.isDefault
                             ? 'Add Template'
                             : 'The Update',
                     onTap: () {
@@ -635,31 +741,36 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                         debugPrint('UpdatingTask');
                         print('Updating Task: ${_task.value.toMap()}');
                         _task.value.isDefault
-                            ? CustomPopup.show(
-                                context: context,
-                                reportNameController: reportNameController,
-                                controller: controller,
-                                universalController: universalController,
-                                currentPage: _currentPage.value,
-                                onTap: () {
-                                  Get.back();
-                                  onUpdateTask(
-                                _task.value,
-                                _attachments,
-                              );
-                                //   Get.to( CustomTaskScreen(
-                                //   reportName: reportNameController.text.trim(),
-                                //  isTemplate:  true,
-                                // isDefault: false,
-                                //    )
-                                // );
-                                  // onSubmitTask(_task.value, _attachments,
-                                  //     isTemplate: true);   
-                                   
-                                   
-                                }
-                                )
-                            :  onUpdateTask(
+                            ? () {
+                                onSubmitTask(_task.value, _attachments,
+                                    isTemplate: true);
+                                controller.refreshTasks(true);
+                              }
+
+                            // CustomPopup.show(
+                            //     context: context,
+                            //     reportNameController: reportNameController,
+                            //     controller: controller,
+                            //     universalController: universalController,
+                            //     currentPage: _currentPage.value,
+                            //     onTap: () {
+                            //       Get.back();
+                            //       onUpdateTask(
+                            //     _task.value,
+                            //     _attachments,
+                            //   );
+                            //     //   Get.to( CustomTaskScreen(
+                            //     //   reportName: reportNameController.text.trim(),
+                            //     //  isTemplate:  true,
+                            //     // isDefault: false,
+                            //     //    )
+                            //     // );
+                            //       // onSubmitTask(_task.value, _attachments,
+                            //       //     isTemplate: true);
+
+                            //     }
+                            //     )
+                            : onUpdateTask(
                                 _task.value,
                                 _attachments,
                               );
@@ -683,43 +794,80 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
     return Obx(
       () => Column(
         children: [
-          
           Column(
-            children: _task.value.pages[currentPage].sections[sectionIndex].elements
+            children: _task
+                .value.pages[currentPage].sections[sectionIndex].elements
                 .map((element) {
               switch (element.type) {
                 case MyCustomItemType.textfield:
                   return HeadingAndTextfield(
                     showDeleteIcon: _task.value.isDefault ? true : true,
+                    showEditIcon: _task.value.isDefault ? true : true,
+                    showEditTitle: _task.value.isDefault ? true : true,
                     title: element.label ?? '',
                     controller: TextEditingController(text: element.value),
                     onChanged: (String? value) => element.value = value ?? '',
                     onDelete: () {
-                    int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
-
-   
-// // Remove the current element from the section
-    // _task.value.pages[currentPage].sections[sectionIndex].elements.remove(element);
-    // _task.refresh(); 
-    // Now show the Add Element Popup for the specific section
-    showAddElementPopup(context,elementIndex,true,true, sectionIndex: sectionIndex); 
-    
-                    // _task.value.pages[currentPage].sections[sectionIndex].elements.remove(element);
-                    //   _task.refresh();
-                    //  showAddElementPopup(context, sectionIndex: sectionIndex);  
+                      _task.value.pages[currentPage].sections[sectionIndex]
+                          .elements
+                          .remove(element);
+                      _task.refresh();
+                      //  showAddElementPopup(context, sectionIndex: sectionIndex);
+                    },
+                    onEdit: () {
+                      int elementIndex = _task.value.pages[currentPage]
+                          .sections[sectionIndex].elements
+                          .indexOf(element);
+                      showAddElementPopup(context, elementIndex, true, true,
+                          sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },
+                    editTitle: () {
+                    
+                      _editNameDialog(currentPage,(){
+                      
+                setState(() {
+                 element.label = _editTitleController.text.trim();
+                
+                });
+             
+                Get.back();
+              
+                      });
                     },
                   );
                 case MyCustomItemType.textarea:
                   return HeadingAndTextfield(
                     maxLines: 5,
                     showDeleteIcon: _task.value.isDefault ? true : true,
+                    showEditIcon: _task.value.isDefault ? true : true,
+                    showEditTitle: _task.value.isDefault ? true : true,
                     title: element.label ?? '',
                     controller: TextEditingController(text: element.value),
                     onChanged: (String? value) => element.value = value ?? '',
                     onDelete: () {
-                      _task.value.pages[currentPage].sections[sectionIndex].elements
+                      _task.value.pages[currentPage].sections[sectionIndex]
+                          .elements
                           .remove(element);
                       _task.refresh();
+                    },
+                    onEdit: () {
+                      int elementIndex = _task.value.pages[currentPage]
+                          .sections[sectionIndex].elements
+                          .indexOf(element);
+                      showAddElementPopup(context, elementIndex, true, true,
+                          sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },
+                    editTitle: () {
+                      _editNameDialog(currentPage,(){
+                    
+                setState(() {
+                 element.label = _editTitleController.text.trim();
+                });
+                Get.back();
+              
+                      });
                     },
                   );
                 case MyCustomItemType.radiobutton:
@@ -728,12 +876,33 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     selected: element.value,
                     heading: element.label ?? '',
                     showDeleteIcon: _task.value.isDefault ? true : true,
+                    showEditIcon: _task.value.isDefault ? true : true,
+                     showEditTitle: _task.value.isDefault ? true : true,
                     onChange: (String value) => element.value = value,
                     onDelete: () {
-                      _task.value.pages[currentPage].sections[sectionIndex].elements
+                      _task.value.pages[currentPage].sections[sectionIndex]
+                          .elements
                           .remove(element);
                       _task.refresh();
                     },
+                    onEdit: () {
+                      int elementIndex = _task.value.pages[currentPage]
+                          .sections[sectionIndex].elements
+                          .indexOf(element);
+                      showAddElementPopup(context, elementIndex, true, true,
+                          sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },
+                  onEditTitle: () {
+                      _editNameDialog(currentPage,(){
+                      
+                setState(() {
+                 element.label = _editTitleController.text.trim();
+                });
+                Get.back();
+              
+                      });
+                    },   
                   );
                 case MyCustomItemType.checkbox:
                   List<String> selectedValues;
@@ -756,11 +925,33 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     //     ?
                     onChange: (List<String> values) => element.value = values,
                     showDeleteIcon: _task.value.isDefault ? true : true,
+                    showEditIcon: _task.value.isDefault ? true : true,
+                    showEditTitle: _task.value.isDefault ? true : true,
+
                     onDelete: () {
-                      _task.value.pages[currentPage].sections[sectionIndex].elements
+                      _task.value.pages[currentPage].sections[sectionIndex]
+                          .elements
                           .remove(element);
                       _task.refresh();
                     },
+                    onEdit: () {
+                      int elementIndex = _task.value.pages[currentPage]
+                          .sections[sectionIndex].elements
+                          .indexOf(element);
+                      showAddElementPopup(context, elementIndex, true, true,
+                          sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },
+                  onEditTitle: () {
+                      _editNameDialog(currentPage,(){
+                      
+                setState(() {
+                 element.label = _editTitleController.text.trim();
+                });
+                Get.back();
+            
+                      });
+                    },   
                   );
                 case MyCustomItemType.attachment:
                   MyAttachmentModel? attach;
@@ -780,8 +971,11 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                       onTap: () async {
                         int? oldIndex;
                         if (attach != null) {
-                          final List<MyCustomElementModel> elements = _task.value
-                              .pages[currentPage].sections[sectionIndex].elements;
+                          final List<MyCustomElementModel> elements = _task
+                              .value
+                              .pages[currentPage]
+                              .sections[sectionIndex]
+                              .elements;
                           oldIndex = elements.indexOf(element);
                         }
                         XFile? image = await ImagePicker().pickImage(
@@ -806,7 +1000,6 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                                   path: image.path,
                                 ),
                               );
-                              _task.refresh();
                             }
                           } else {
                             Get.snackbar(
@@ -819,6 +1012,15 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                         _task.value.pages[currentPage].sections[sectionIndex]
                             .elements
                             .remove(element);
+                        _task.refresh();
+                      },
+
+                      onEdit: () {
+                        int elementIndex = _task.value.pages[currentPage]
+                            .sections[sectionIndex].elements
+                            .indexOf(element);
+                        showAddElementPopup(context, elementIndex, true, true,
+                            sectionIndex: sectionIndex);
                         _task.refresh();
                       },
                       showEyeIcon: widget.task == null
@@ -853,7 +1055,8 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                                                   return child;
                                                 }
                                                 return Center(
-                                                  child: CircularProgressIndicator(
+                                                  child:
+                                                      CircularProgressIndicator(
                                                     value: loadingProgress
                                                                 .expectedTotalBytes !=
                                                             null
@@ -885,6 +1088,46 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
             }).toList(),
           ),
         ],
+      ),
+    );
+  }
+
+  void _editNameDialog(int currentPage, pressed, ) {
+      _editTitleController.clear();
+    return showCustomPopup(
+      context: context,
+      width: context.width * 0.8,
+      widget: Form(
+        key: _validateEmail,
+        child: Column(
+          children: [
+            const CustomTextWidget(
+              text: 'Edit Title',
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            HeadingAndTextfield(
+              title: 'New Title Name',
+              controller: _editTitleController,
+              hintText: 'Enter Title Name',
+              validator: (val) => AppValidator.validateEmail(value: val),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            CustomButton(
+              buttonText: 'Done',
+              onTap: pressed,
+              isLoading: false,
+              usePrimaryColor: false,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -935,7 +1178,9 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
     );
   }
 
-  void showAddElementPopup(BuildContext context, elementIndex,bool isEdit,bool removePrevious, {required int sectionIndex}) {
+  void showAddElementPopup(
+      BuildContext context, elementIndex, bool isEdit, bool removePrevious,
+      {required int sectionIndex}) {
     showCustomPopup(
       context: context,
       width: context.width * 0.3,
@@ -944,14 +1189,21 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildAddTextFieldButton(context,elementIndex,isEdit,removePrevious, sectionIndex: sectionIndex),
-            _buildAddTextFieldButton(context,elementIndex,isEdit,removePrevious,
+            _buildAddTextFieldButton(
+                context, elementIndex, isEdit, removePrevious,
+                sectionIndex: sectionIndex),
+            _buildAddTextFieldButton(
+                context, elementIndex, isEdit, removePrevious,
                 isTextArea: true, sectionIndex: sectionIndex),
-            _buildAddCheckboxAndRadioButton(context,
+            _buildAddCheckboxAndRadioButton(
+                context, elementIndex, isEdit, removePrevious,
                 sectionIndex: sectionIndex, isCheckbox: false),
-            _buildAddCheckboxAndRadioButton(context,
+            _buildAddCheckboxAndRadioButton(
+                context, elementIndex, isEdit, removePrevious,
                 sectionIndex: sectionIndex, isCheckbox: true),
-            _buildAddAttachmentButton(context, sectionIndex: sectionIndex),
+            _buildAddAttachmentButton(
+                context, elementIndex, isEdit, removePrevious,
+                sectionIndex: sectionIndex),
             // _buildAddGridButton(context, sectionIndex: sectionIndex),
           ],
         ),
@@ -959,7 +1211,8 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
     );
   }
 
-  Widget _buildAddTextFieldButton(BuildContext context, int elementIndex,bool isEdit,bool removePrevious,
+  Widget _buildAddTextFieldButton(
+      BuildContext context, int elementIndex, bool isEdit, bool removePrevious,
       {bool isTextArea = false, required int sectionIndex}) {
     return CustomButton(
       usePrimaryColor: true,
@@ -993,15 +1246,20 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                           : MyCustomItemType.textfield,
                       value: '',
                     );
-                    
+
                     if (removePrevious == true) {
-                       _task.value.pages[_currentPage.value].sections[sectionIndex].elements.removeAt(elementIndex);
-                     }
-                      isEdit == true
-                     ?  _task.value.pages[_currentPage.value].sections[sectionIndex]
-                      .elements.insert(elementIndex, myCustomItemModel)
-                     :   _task.value.pages[_currentPage.value].sections[sectionIndex].elements.add(myCustomItemModel); 
-                    
+                      _task.value.pages[_currentPage.value]
+                          .sections[sectionIndex].elements
+                          .removeAt(elementIndex);
+                    }
+                    isEdit == true
+                        ? _task.value.pages[_currentPage.value]
+                            .sections[sectionIndex].elements
+                            .insert(elementIndex, myCustomItemModel)
+                        : _task.value.pages[_currentPage.value]
+                            .sections[sectionIndex].elements
+                            .add(myCustomItemModel);
+
                     // _task.value.pages[_currentPage.value].sections[sectionIndex]
                     //     .elements
                     //     .add(myCustomItemModel);
@@ -1020,21 +1278,23 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
     );
   }
 
-  Widget _buildAddCheckboxAndRadioButton(BuildContext context,
+  Widget _buildAddCheckboxAndRadioButton(
+      BuildContext context, int elementIndex, bool isEdit, bool removePrevious,
       {required bool isCheckbox, required int sectionIndex}) {
     return CustomButton(
       usePrimaryColor: true,
       buttonText: isCheckbox ? 'Add Checkbox' : 'Add Radio Button',
       onTap: () {
         Get.back();
-        _showRadioButtonPopup(context,
+        _showRadioButtonPopup(context, elementIndex, isEdit, removePrevious,
             isCheckbox: isCheckbox, sectionIndex: sectionIndex);
       },
       isLoading: false,
     );
   }
 
-  Widget _buildAddAttachmentButton(BuildContext context,
+  Widget _buildAddAttachmentButton(
+      BuildContext context, int elementIndex, bool isEdit, bool removePrevious,
       {required int sectionIndex}) {
     return CustomButton(
       usePrimaryColor: true,
@@ -1055,37 +1315,50 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                       fieldName: 'Heading', value: value),
                 ),
               ),
-     
-                 CustomButton(
-                  usePrimaryColor: true,
-                  buttonText: 'Add Attachments',
-                  onTap: () {
-                    if (_formKey.currentState!.validate()) {
-                      MyCustomElementModel myCustomItemModel =
-                          MyCustomElementModel(
-                        label: _hintTextController.text,
-                        type: MyCustomItemType.attachment,
-                        value: null,
-                      );
-                      _task.value.pages[_currentPage.value].sections[sectionIndex]
-                          .elements
-                          .add(myCustomItemModel);
-                      Get.back();
-                      _hintTextController.clear();
+              CustomButton(
+                usePrimaryColor: true,
+                buttonText: 'Add Attachments',
+                onTap: () {
+                  if (_formKey.currentState!.validate()) {
+                    MyCustomElementModel myCustomItemModel =
+                        MyCustomElementModel(
+                      label: _hintTextController.text,
+                      type: MyCustomItemType.attachment,
+                      value: null,
+                    );
+                    if (removePrevious == true) {
+                      _task.value.pages[_currentPage.value]
+                          .sections[sectionIndex].elements
+                          .removeAt(elementIndex);
                     }
-                  },
-                  isLoading: false,
-                ),
-              
+                    isEdit == true
+                        ? _task.value.pages[_currentPage.value]
+                            .sections[sectionIndex].elements
+                            .insert(elementIndex, myCustomItemModel)
+                        : _task.value.pages[_currentPage.value]
+                            .sections[sectionIndex].elements
+                            .add(myCustomItemModel);
+                    // _task.value.pages[_currentPage.value].sections[sectionIndex]
+                    //     .elements
+                    //     .add(myCustomItemModel);
+                    Get.back();
+                    _hintTextController.clear();
+                    _task.refresh();
+                  }
+                },
+                isLoading: false,
+              ),
             ],
           ),
         );
+        _task.refresh();
       },
       isLoading: false,
     );
   }
 
-  void _showRadioButtonPopup(BuildContext context,
+  void _showRadioButtonPopup(
+      BuildContext context, int elementIndex, bool isEdit, bool removePrevious,
       {bool isCheckbox = false, required int sectionIndex}) {
     var options = <String>[].obs;
     showCustomPopup(
@@ -1163,10 +1436,23 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                   options: options,
                   value: isCheckbox ? <String>[] : '',
                 );
-                _task.value.pages[_currentPage.value].sections[sectionIndex]
-                    .elements
-                    .add(myCustomItemModel);
+                if (removePrevious == true) {
+                  _task.value.pages[_currentPage.value].sections[sectionIndex]
+                      .elements
+                      .removeAt(elementIndex);
+                }
+                isEdit == true
+                    ? _task.value.pages[_currentPage.value]
+                        .sections[sectionIndex].elements
+                        .insert(elementIndex, myCustomItemModel)
+                    : _task.value.pages[_currentPage.value]
+                        .sections[sectionIndex].elements
+                        .add(myCustomItemModel);
                 _task.refresh();
+                // _task.value.pages[_currentPage.value].sections[sectionIndex]
+                //     .elements
+                //     .add(myCustomItemModel);
+                // _task.refresh();
                 Get.back();
                 _hintTextController.clear();
               } else {
@@ -1272,6 +1558,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
       if (response.isSuccess) {
         urls.assignAll(response.data);
         print(urls);
+        print('Updated Task Name: ${e.name}');
 
         for (MySection section in e.pages[_currentPage.value].sections) {
           for (MyCustomElementModel element in section.elements) {
@@ -1285,7 +1572,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
             .updateCustomTask(taskData: e.toMap(), taskId: e.id ?? '');
         if (isSuccess) {
           ToastMessage.showToastMessage(
-              message: 'Task Updated Successfully',
+              message: 'Task Updated Successfully${e.name}',
               backgroundColor: Colors.green);
           final CustomTaskController controller = Get.find();
           controller.getAllCustomTasks();
@@ -1387,6 +1674,7 @@ void showCustomPopup(
           child: FadeTransition(
               opacity: Tween<double>(begin: 0.5, end: 1.0).animate(animation),
               child: AlertDialog(
+                  insetPadding: const EdgeInsets.all(20),
                   scrollable: true,
                   backgroundColor: Colors.transparent,
                   content: Container(

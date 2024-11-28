@@ -1,6 +1,6 @@
 class MyCustomTask {
   final String? id;
-  final String name;
+   String name;
   String? customerName, customerEmail;
   bool isForm, isTemplate, isDefault;
   final List<MyPage> pages;
@@ -72,7 +72,7 @@ class MyPage {
 class MySection {
   MySection({required this.heading, required this.elements});
 
-  final String heading;
+   String heading;
   final List<MyCustomElementModel> elements;
 
   Map<String, dynamic> toMap() {
@@ -116,7 +116,7 @@ MyCustomItemType? _typeFromString(String? type) {
 }
 
 class MyCustomElementModel {
-  final String? label;
+   String? label;
   final List<String>? options;
   final MyCustomItemType? type;
   dynamic value;

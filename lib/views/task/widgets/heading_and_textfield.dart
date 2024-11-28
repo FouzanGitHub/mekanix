@@ -5,6 +5,8 @@ import 'package:app/helpers/reusable_textfield.dart';
 
 class HeadingAndTextfield extends StatelessWidget {
   final String title;
+  final bool showEditTitle;
+  final VoidCallback? editTitle;
   final double? fontSize;
   final String? hintText;
   final bool? readOnly;
@@ -18,6 +20,8 @@ class HeadingAndTextfield extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool showDeleteIcon;
   final VoidCallback? onDelete;
+  final bool showEditIcon;
+  final VoidCallback? onEdit;
   final bool showEyeIcon;
   final VoidCallback? onEyeTap;
 
@@ -37,7 +41,11 @@ class HeadingAndTextfield extends StatelessWidget {
     this.fontSize,
     this.showDeleteIcon = false,
     this.onDelete,
+    this.showEditIcon = false,
+    this.onEdit, 
     this.showEyeIcon = false,
+    this.editTitle, 
+    this.showEditTitle = false,
     this.onEyeTap,
   });
 
@@ -51,14 +59,30 @@ class HeadingAndTextfield extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                child: CustomTextWidget(
-                  text: title,
-                  fontWeight: FontWeight.w500,
-                  maxLines: 2,
-                  fontSize: fontSize ?? 12,
-                ),
+            InkWell(
+              onTap: editTitle,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                Visibility(
+                visible: showEditTitle,
+                child: const Icon(Icons.edit,color: Colors.grey,size: 18,)),
+                  const SizedBox(width: 1),
+                  SizedBox(
+                 
+                width: 270,
+                    child: CustomTextWidget(
+                    text: title,
+                    fontWeight: FontWeight.w500,
+                    maxLines: 2,
+                    fontSize: fontSize ?? 12,
+                                  ),
+                  ),
+                ],
               ),
+            ),
+              
+
               Visibility(
                 visible: showEyeIcon,
                 child: InkWell(
@@ -74,6 +98,8 @@ class HeadingAndTextfield extends StatelessWidget {
           ReUsableTextField(
             showDeleteIcon: showDeleteIcon,
             onDelete: showDeleteIcon ? onDelete : null,
+            showEditIcon: showEditIcon,
+            onEdit: showDeleteIcon ? onEdit : null,
             controller: controller,
             onChanged: onChanged,
             onTap: onTap,

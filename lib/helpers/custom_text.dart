@@ -36,6 +36,7 @@ class CustomTextWidget extends StatelessWidget {
         fontSize: fontSize ?? 14,
         fontWeight: fontWeight ?? FontWeight.w400,
         color: textColor ?? AppColors.blueTextColor,
+        overflow: TextOverflow.ellipsis
       ),
     );
   }

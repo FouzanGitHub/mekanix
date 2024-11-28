@@ -28,6 +28,7 @@ class TaskScreen extends StatefulWidget {
 
   @override
   State<TaskScreen> createState() => _TaskScreenState();
+
 }
 
 class _TaskScreenState extends State<TaskScreen> {
@@ -41,6 +42,9 @@ class _TaskScreenState extends State<TaskScreen> {
     controller = Get.put(CustomTaskController());
     controller.getAllCustomTasks(page: 1);
     controller.getAllCustomTasks(page: 1, isTemplate: true);
+     
+     
+    
     super.initState();
   }
 
@@ -416,7 +420,8 @@ class CustomPopup {
               if (reportNameController.text.isNotEmpty) {
                 Get.back();
                Get.to(
-                  () => CustomTaskScreen(
+                  () => 
+                  CustomTaskScreen(
                     reportName: reportNameController.text.trim(),
                     isTemplate: currentPage == 0 ? false : true,
                     isDefault: true,
@@ -562,7 +567,8 @@ class CustomTemplatePopup {
                     controller.engineBrandId.value.isNotEmpty) {
                   Get.back();
                   Get.to(
-                    () => CustomTaskScreen(
+                    () => 
+                    CustomTaskScreen(
                       reportName: task.name,
                       task: task,
                       isTemplate: task.isTemplate,

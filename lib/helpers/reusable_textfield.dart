@@ -19,7 +19,8 @@ class ReUsableTextField extends StatelessWidget {
   final bool showBackgroundShadow;
   final bool showDeleteIcon;
   final VoidCallback? onDelete;
-
+  final bool showEditIcon;
+  final VoidCallback? onEdit;
   const ReUsableTextField({
     super.key,
     required this.hintText,
@@ -35,6 +36,8 @@ class ReUsableTextField extends StatelessWidget {
     this.showBackgroundShadow = true,
     this.showDeleteIcon = false,
     this.onDelete,
+    this.showEditIcon = false,
+    this.onEdit,
     this.validator,
   });
 
@@ -43,6 +46,8 @@ class ReUsableTextField extends StatelessWidget {
     return ReUsableContainer(
       showDeleteIcon: showDeleteIcon,
       onDelete: onDelete,
+      showEditIcon: showDeleteIcon,
+      onEdit: onEdit,
       showBackgroundShadow: showBackgroundShadow,
       verticalPadding: context.height * 0.012,
       child: TextFormField(

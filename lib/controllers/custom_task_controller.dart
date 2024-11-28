@@ -85,6 +85,19 @@ class CustomTaskController extends GetxController {
     }
   }
 
+ Future<void> refreshTasks(isTemplate) async {
+    if (isTemplate) {
+      currentPageTemplates.value = 1;
+      templates.clear();
+      await loadNextPageTemplates();
+    } else {
+      currentPageTasks.value = 1;
+      submittedTasks.clear();
+      await loadNextPageTasks();
+    }
+  }
+
+
   Future<void> loadNextPageTemplates() async {
     debugPrint('Loading Next Page ${currentPageTemplates.value} Templates');
     if (isTemplatesAreLoading.value) return;
