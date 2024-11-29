@@ -11,6 +11,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
+import 'views/engines/categories.dart';
+
 final GetStorage storage = GetStorage();
 
 Future<void> main() async {
@@ -69,6 +71,8 @@ class AuthCheck extends StatelessWidget {
                 'IsTokenValid: ${authStatusCheckController.isTokenValid.value}');
             print('Token: ${storage.read('token')}');
             return const DashboardScreen();
+            // return  CategoriesView();
+          
           } else {
             print(
                 'IsTokenValid: ${authStatusCheckController.isTokenValid.value}');

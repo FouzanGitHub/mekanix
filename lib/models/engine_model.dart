@@ -13,6 +13,8 @@ class EngineModel {
   String? name;
   String? imageUrl;
   String? subname;
+  String? categoryId;
+  String? categoryName;
   bool? isGenerator;
   bool? isCompressor;
   bool? isDefault;
@@ -23,6 +25,8 @@ class EngineModel {
     this.name,
     this.imageUrl,
     this.subname,
+    this.categoryId,
+    this.categoryName,
     this.isGenerator,
     this.isCompressor,
     this.isDefault,
@@ -34,6 +38,8 @@ class EngineModel {
         name: json["name"],
         imageUrl: json["url"],
         subname: json["subname"],
+        categoryId: json["categoryId"],
+        categoryName: json["categoryName"],
         isGenerator: json["is_generator"],
         isCompressor: json["is_compressor"],
         isDefault: json["is_default"],
@@ -44,6 +50,8 @@ class EngineModel {
         "user": userId,
         "name": name,
         "subname": subname,
+        "categoryId": categoryId,
+        "categoryName": categoryName,
         "is_generator": isGenerator,
         "is_compressor": isCompressor,
         "is_default": isDefault,

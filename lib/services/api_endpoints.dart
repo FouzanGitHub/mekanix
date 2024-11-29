@@ -36,4 +36,9 @@ class ApiEndPoints {
   static String updateEngineUrl = '/api/engine/updateenginebrand';
   static String deleteEngineUrl = '/api/engine/deleteenginebrand';
   static String updateEngineImageUrl = '/api/engine/updateengineprofile';
+
+
+//Category
+  static const String getAllCategories = '/api/category/getAll';  
+  static const String getCategoriesData = '/api/engine/getenginebrandpagination';  
 }

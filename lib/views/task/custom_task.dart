@@ -741,11 +741,11 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                         debugPrint('UpdatingTask');
                         print('Updating Task: ${_task.value.toMap()}');
                         _task.value.isDefault
-                            ? () {
+                            ? 
                                 onSubmitTask(_task.value, _attachments,
-                                    isTemplate: true);
-                                controller.refreshTasks(true);
-                              }
+                                    isTemplate: true)
+                                // controller.refreshTasks(true);
+                            
 
                             // CustomPopup.show(
                             //     context: context,
@@ -968,6 +968,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                           : element.value.toString(),
                       // : listOfAttachments[element.value].name,
                       readOnly: listOfAttachments.isEmpty ? true : true,
+                      
                       onTap: () async {
                         int? oldIndex;
                         if (attach != null) {
@@ -1023,6 +1024,17 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                             sectionIndex: sectionIndex);
                         _task.refresh();
                       },
+                      showEditTitle: _task.value.isDefault ? true : true,
+                      editTitle:   () {
+                      _editNameDialog(currentPage,(){
+                      
+                setState(() {
+                 element.label = _editTitleController.text.trim();
+                });
+                Get.back();
+            
+                      });
+                    },
                       showEyeIcon: widget.task == null
                           ? attach != null
                           : element.value != '',
@@ -1399,7 +1411,8 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                                 _task.refresh();
                               },
                               label: CustomTextWidget(
-                                  text: option, textColor: Colors.white70),
+                                  text: option,
+                                   textColor: Colors.white70),
                             ),
                           ),
                         )

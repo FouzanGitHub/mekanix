@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app/controllers/category_controller.dart';
 import 'package:app/controllers/engines_controller.dart';
 import 'package:app/controllers/universal_controller.dart';
 import 'package:app/helpers/appcolors.dart';
@@ -9,7 +10,7 @@ import 'package:app/helpers/reusable_container.dart';
 import 'package:app/helpers/reusable_textfield.dart';
 import 'package:app/helpers/tabbar.dart';
 import 'package:app/helpers/validator.dart';
-import 'package:app/models/engine_model.dart';
+
 import 'package:app/views/task/widgets/heading_and_textfield.dart';
 import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +18,18 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../services/category_service.dart';
+
+import 'category_dialog.dart';
+
 class EnginesScreen extends StatelessWidget {
   final SideMenuController sideMenu;
 
   EnginesScreen({super.key, required this.sideMenu});
 
   final EnginesController controller = Get.put(EnginesController());
+  final CategoriesController categoryController =
+      Get.put(CategoriesController(repository: CategoriesRepository()));
   final UniversalController universalController = Get.find();
 
   @override
@@ -37,168 +44,228 @@ class EnginesScreen extends StatelessWidget {
             Get.delete<EnginesController>();
             universalController.fetchUserAnalyticsData();
           },
-          child: DefaultTabController(
-            length: 2,
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Container(
+          child: Obx(() {
+            categoryController.fetchEngines(
+                categoryController.selectedCategory.value, '');
+            final categories =
+                categoryController.categoriesResponse.value?.data ?? [];
+            // Wait for categories to be loaded
+            if (categoryController.isLoadingCategory.value) {
+              return Center(
+                  heightFactor: 3,
+                  child: SpinKitCircle(
+                    color: AppColors.primaryColor,
+                    size: 60.0,
+                  ));
+            }
+
+            // If categories are empty after loading, show an appropriate message
+            if (categories.isEmpty) {
+              return Center(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/images/view-task.png'),
+                  const CustomTextWidget(
+                    text: 'No Category Available',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ],
+              ));
+            }
+
+            return DefaultTabController(
+              length: categories.length,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    vertical: context.height * 0.02,
+                    horizontal: context.width * 0.05),
+                decoration: const BoxDecoration(color: Colors.transparent),
+                child: Padding(
                   padding: EdgeInsets.symmetric(
-                      vertical: context.height * 0.02,
-                      horizontal: context.width * 0.05),
-                  decoration: const BoxDecoration(color: Colors.transparent),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal:
-                            context.isLandscape ? context.width * 0.05 : 0.02),
-                    child: Column(
-                      children: [
-                        ReUsableTextField(
-                          controller: controller.searchController,
-                          hintText: 'Search Engine',
-                          suffixIcon: const Icon(Icons.search_sharp),
-                          onChanged: (value) {
-                            controller.getAllEngines(searchName: value);
-                          },
-                        ),
-                        CustomButton(
-                          usePrimaryColor: true,
-                          isLoading: false,
-                          buttonText: '+ Add Engine',
-                          fontSize: 14,
-                          onTap: () => _openAddEngineDialog(
-                            context: context,
-                            controller: controller,
-                          ),
-                        ),
-                        //TabBar
-                        CustomTabBar(
-                            onTap: (currentPage) {
-                              currentPage == 0
-                                  ? controller.engineType.value = 'Generator'
-                                  : controller.engineType.value = 'Compressor';
-                            },
-                            title1: 'Generator',
-                            title2: 'Compressor'),
-                        Expanded(
-                          child: Obx(
-                            () => TabBarView(
-                              physics: const NeverScrollableScrollPhysics(),
+                      horizontal:
+                          context.isLandscape ? context.width * 0.05 : 0.02),
+                  child: Column(
+                    children: [
+                      ReUsableTextField(
+                        controller: categoryController.searchController,
+                        hintText: 'Search Engine',
+                        suffixIcon: const Icon(Icons.search_sharp),
+                        onChanged: (value) {
+                          categoryController.fetchEngines(
+                              categoryController.selectedCategory.value, value);
+                        },
+                      ),
+                      CustomButton(
+                        usePrimaryColor: true,
+                        isLoading: false,
+                        buttonText: '+ Add Engine',
+                        fontSize: 14,
+                        onTap: () {
+                          controller.isQrCodeGenerated.value = false;
+                          controller.engineImageUrl.value = '';
+                          controller.engineName.clear();
+                          controller.engineSubtitle.clear();
+                          categoryController.selectedCategoryId.value = '';
+                          categoryController.selectedCategoryName.value = '';
+                          _openAddEngineDialog(
+                              context: context,
+                              controller: controller,
+                              controller2: categoryController);
+                        },
+                      ),
+                      CustomDynamicTabBar(
+                        onTap: (index) {
+                          // Set the selected category when a tab is selected
+                          categoryController.selectedCategory.value =
+                              categories[index].name!;
+                          // Fetch the engines for the selected category
+                          categoryController.fetchEngines(
+                              categoryController.selectedCategory.value, '');
+                        },
+                        categories: categories,
+                      ),
+                      Expanded(
+                        child: Obx(() {
+                          final categoryData = categoryController
+                                  .enginesResponse.value?.engines ??
+                              [];
+                          // Wait for engines data to be loaded
+                          if (categoryController.isLoading.value) {
+                            return Center(
+                                heightFactor: 3,
+                                child: SpinKitCircle(
+                                  color: AppColors.primaryColor,
+                                  size: 60.0,
+                                ));
+                          }
+
+                          if (categoryData.isEmpty) {
+                            return Center(
+                                child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                EnginesTabbarView(
-                                    isGenerator: true,
-                                    controller: controller,
-                                    engines: universalController.engines
-                                        .where((engine) =>
-                                            engine.isGenerator == true)
-                                        .toList()),
-                                EnginesTabbarView(
-                                    isGenerator: false,
-                                    controller: controller,
-                                    engines: universalController.engines
-                                        .where((engine) =>
-                                            engine.isCompressor == true)
-                                        .toList()),
+                                Image.asset('assets/images/view-task.png'),
+                                const CustomTextWidget(
+                                  text: 'No Data Found',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ],
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
+                            ));
+                          }
+
+                          // Display TabBarView with content corresponding to selected category
+                          return TabBarView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: categories.map((category) {
+                              return RefreshIndicator(
+                                onRefresh: () => 
+                                categoryController.fetchEngines(categoryController.selectedCategory.value,''),
+                                color: AppColors.primaryColor,
+                                backgroundColor: AppColors.secondaryColor,
+                                triggerMode: RefreshIndicatorTriggerMode.onEdge,
+                                child: ListView.builder(
+                                  itemCount: categoryData.length,
+                                  itemBuilder: (context, index) {
+                                    var engine = categoryData[index];
+                                    return ReUsableContainer(
+                                      child: ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        onTap: () {},
+                                        leading: Container(
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black),
+                                              shape: BoxShape.circle),
+                                          child: CircleAvatar(
+                                            backgroundColor: Colors.white,
+                                            backgroundImage:
+                                                NetworkImage(engine.url ?? ''),
+                                          ),
+                                        ),
+                                        title: CustomTextWidget(
+                                            text: engine.name ??
+                                                'No Name Specified',
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w500),
+                                        subtitle: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              CustomTextWidget(
+                                                  text: engine.subname ??
+                                                      'No SubTitle Specified',
+                                                  textColor:
+                                                      AppColors.lightTextColor,
+                                                  fontSize: 12.0),
+                                              CustomTextWidget(
+                                                  text:
+                                                      'Type: ${engine.categoryName}',
+                                                  fontSize: 10.0,
+                                                  textColor: AppColors
+                                                      .lightTextColor2),
+                                            
+                                            ]),
+                                        trailing: engine.isDefault ?? true
+                                            ? null
+                                            : Wrap(
+                                                spacing: 12.0,
+                                                children: [
+                                                  InkWell(
+                                                      onTap: () {
+                                                        _showEditPopup(
+                                                            context: context,
+                                                            controller:
+                                                                controller,
+                                                            controller2:
+                                                                categoryController,
+                                                            model: engine);
+                                                      },
+                                                      child: Icon(Icons.edit,
+                                                          color: AppColors
+                                                              .secondaryColor)),
+                                                  InkWell(
+                                                      onTap: () {
+                                                        _showDeletePopup(
+                                                            context: context,
+                                                            controller:
+                                                                controller,
+                                                            model: engine);
+                                                      },
+                                                      child: const Icon(
+                                                          Icons.delete,
+                                                          color: Colors.red))
+                                                ],
+                                              ),
+                                      ),
+                                    );
+                                  
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        }),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          }),
         ),
       ),
     );
   }
 }
 
-class EnginesTabbarView extends StatelessWidget {
-  const EnginesTabbarView(
-      {super.key,
-      required this.controller,
-      required this.engines,
-      required this.isGenerator});
-
-  final EnginesController controller;
-  final List<EngineModel> engines;
-  final bool isGenerator;
-
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () => controller.getAllEngines(),
-      color: AppColors.primaryColor,
-      backgroundColor: AppColors.secondaryColor,
-      triggerMode: RefreshIndicatorTriggerMode.onEdge,
-      child: Obx(
-        () => controller.isEnginesAreLoading.value
-            ? const SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(),
-                child: Center(
-                    heightFactor: 3,
-                    child: SpinKitCircle(
-                      color: Colors.black87,
-                      size: 40.0,
-                    )),
-              )
-            : engines.isEmpty
-                ? SingleChildScrollView(
-                    child: Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(height: context.height * 0.15),
-                          Image.asset('assets/images/view-task.png',
-                              height: context.height * 0.15),
-                          CustomTextWidget(
-                            text:
-                                'No ${isGenerator ? 'Generator' : 'Compressor'} found',
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          SizedBox(height: context.height * 0.25),
-                        ],
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    controller: controller.scrollController,
-                    shrinkWrap: true,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount:
-                        engines.length + (controller.isLoading.value ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index < engines.length) {
-                        final engine = engines[index];
-                        return CustomEngineCard(
-                          controller: controller,
-                          model: engine,
-                          onTap: () {},
-                        );
-                      } else if (controller.isLoading.value) {
-                        return const Center(
-                          heightFactor: 3,
-                          child:
-                              SpinKitCircle(color: Colors.black87, size: 40.0),
-                        );
-                      } else {
-                        return Container();
-                      }
-                    },
-                  ),
-      ),
-    );
-  }
-}
 
 void _openAddEngineDialog({
   required BuildContext context,
   required EnginesController controller,
+  required CategoriesController controller2,
 }) {
   showGeneralDialog(
     context: context,
@@ -219,6 +286,8 @@ void _openAddEngineDialog({
                       controller.engineImageUrl.value = '';
                       controller.engineName.clear();
                       controller.engineSubtitle.clear();
+                      controller2.selectedCategoryId.value = '';
+                      controller2.selectedCategoryName.value = '';
                       Get.back();
                     }
                   },
@@ -312,26 +381,12 @@ class DialogFirstView extends StatelessWidget {
                 validator: (val) => AppValidator.validateEmptyText(
                     fieldName: 'Engine Subtitle', value: val)),
             const CustomTextWidget(
-                text: 'Select Engine Type',
+                text: 'Select Type',
                 fontSize: 12.0,
                 fontWeight: FontWeight.w600,
                 maxLines: 2),
-            Obx(() => Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: ['Generator', 'Compressor'].map((option) {
-                    return Row(children: [
-                      Radio(
-                          visualDensity: VisualDensity.compact,
-                          activeColor: AppColors.blueTextColor,
-                          value: option,
-                          groupValue: controller.engineType.value,
-                          onChanged: (value) {
-                            controller.engineType.value = value.toString();
-                          }),
-                      CustomTextWidget(text: option, fontSize: 11.0)
-                    ]);
-                  }).toList(),
-                ))
+            CategoryDialog(),
+           
           ])),
       Obx(
         () => CustomButton(
@@ -393,38 +448,7 @@ class DialogSecondView extends StatelessWidget {
             size: 200.0,
           ),
         ),
-        // controller.isQrCodeGenerated.value
-        //     ? Container(
-        //         decoration:
-        //             BoxDecoration(border: Border.all(color: Colors.black54)),
-        //         child: QrImageView(
-        //           data: controller.engineName.text.trim(),
-        //           version: QrVersions.auto,
-        //           size: 200.0,
-        //           // errorStateBuilder: (cxt, err) {
-        //           //   return Center(
-        //           //     child: CustomTextWidget(
-        //           //       text: 'Uh oh! Something went wrong...',
-        //           //       textAlign: TextAlign.center,
-        //           //       maxLines: 2,
-        //           //       fontSize: 12.0,
-        //           //     ),
-        //           //   );
-        //           // },
-        //         ),
-        //       )
-        //     : Center(
-        //         child: Padding(
-        //           padding: const EdgeInsets.all(8.0),
-        //           child: CustomTextWidget(
-        //             text:
-        //                 'Something went wrong in generating the QrCode, try again!',
-        //             maxLines: 2,
-        //             fontSize: 10.0,
-        //             textAlign: TextAlign.center,
-        //           ),
-        //         ),
-        //       ),
+       
         const Divider(color: Colors.black54),
         CustomButton(
           isLoading: false,
@@ -444,101 +468,23 @@ class DialogSecondView extends StatelessWidget {
   }
 }
 
-class CustomEngineCard extends StatelessWidget {
-  final EngineModel model;
-  final VoidCallback onTap;
-  final EnginesController controller;
 
-  const CustomEngineCard(
-      {super.key,
-      required this.model,
-      required this.onTap,
-      required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return ReUsableContainer(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        onTap: onTap,
-        leading: Container(
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.black), shape: BoxShape.circle),
-          child: CircleAvatar(
-            backgroundColor: Colors.white,
-            backgroundImage: NetworkImage(model.imageUrl ?? ''),
-          ),
-        ),
-        title: CustomTextWidget(
-            text: model.name ?? 'No Image Specified',
-            fontSize: 14.0,
-            fontWeight: FontWeight.w500),
-        subtitle:
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          CustomTextWidget(
-              text: model.subname ?? 'No SubTitle Specified',
-              textColor: AppColors.lightTextColor,
-              fontSize: 12.0),
-          CustomTextWidget(
-              text:
-                  'Engine Type: ${model.isGenerator == true ? 'Generator' : 'Compressor'}',
-              fontSize: 10.0,
-              textColor: AppColors.lightGreyColor),
-          // CustomTextWidget(
-          //     text: model.id ?? 'No Id Specified',
-          //     fontSize: 12.0,
-          //     textColor: AppColors.lightGreyColor)
-        ]),
-        trailing: model.isDefault ?? true
-            ? null
-            : Wrap(
-                spacing: 12.0,
-                children: [
-                  InkWell(
-                      onTap: () {
-                        _showEditPopup(
-                            context: context,
-                            controller: controller,
-                            model: model);
-                      },
-                      child: Icon(Icons.edit, color: AppColors.secondaryColor)),
-                  InkWell(
-                      onTap: () {
-                        _showDeletePopup(
-                            context: context,
-                            controller: controller,
-                            model: model);
-                      },
-                      child: const Icon(Icons.delete, color: Colors.red))
-                ],
-              ),
-        // trailing: QrImageView(
-        //     data: model.name ?? '',
-        //     version: QrVersions.auto,
-        //     // size: context.height * 0.1,
-        //     errorStateBuilder: (cxt, err) {
-        //       return Center(
-        //           child: CustomTextWidget(
-        //               text: 'Uh oh! Something went wrong...',
-        //               textAlign: TextAlign.center,
-        //               maxLines: 2,
-        //               fontSize: 12.0));
-        //     }),
-      ),
-    );
-  }
-}
 
 void _showEditPopup(
     {required BuildContext context,
     required EnginesController controller,
-    required EngineModel model}) {
+    required CategoriesController controller2,
+    required model}) {
   controller.engineName.text = model.name ?? '';
   controller.engineSubtitle.text = model.subname ?? '';
-  controller.engineType.value = model.isGenerator! ? 'Generator' : 'Compressor';
+  controller2.selectedCategoryId.value = model.categoryId ?? '';
+  controller2.selectedCategoryName.value = model.categoryName ?? '';
+  final CategoriesController categoryController =
+      Get.put(CategoriesController(repository: CategoriesRepository()));
+
+  // controller.engineType.value = model.isGenerator! ? 'Generator' : 'Compressor';
   // RxString engineImageUrl = ''.obs;
-  controller.updatedEngineImageUrl.value = model.imageUrl ?? '';
+  controller.updatedEngineImageUrl.value = model.url ?? '';
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -559,14 +505,17 @@ void _showEditPopup(
                     controller.engineName.clear();
                     controller.engineSubtitle.clear();
                     controller.engineType.value = 'Generator';
+                    controller2.selectedCategoryId.value = '';
+                    controller2.selectedCategoryName.value = '';
                     Get.back();
                   }
                 },
                 child: AlertDialog(
+                    insetPadding: const EdgeInsets.all(20),
                     scrollable: true,
                     backgroundColor: Colors.transparent,
                     content: Container(
-                      width: context.width * 0.7,
+                      width: context.width * 0.9,
                       height: context.height * 0.7,
                       padding: EdgeInsets.symmetric(
                           horizontal: 8.0, vertical: context.height * 0.02),
@@ -595,28 +544,26 @@ void _showEditPopup(
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            InkWell(
-                              onTap: () => controller.updateImage(model),
-                              child: Obx(
-                                () => CircleAvatar(
-                                  radius: 45,
-                                  backgroundColor: Colors.white,
-                                  // backgroundImage: model.imageUrl == null
-                                  //     ? const AssetImage(
-                                  //             'assets/images/placeholder.png')
-                                  //         as ImageProvider
-                                  //     : NetworkImage(model.imageUrl ?? ''),
-                                  backgroundImage: controller
-                                              .updatedEngineImageUrl.value ==
-                                          ''
+                   
+                               InkWell(
+                                // onTap: () => controller.updateImage(model),
+                                onTap: () {
+                                  controller.updateImage(model);
+                                                         
+                                },
+                                child:  Obx(()=>
+                                 CircleAvatar(
+                                      radius: 45,
+                                      backgroundColor: Colors.white,
+                                      backgroundImage: controller.updatedEngineImageUrl.value ==''
                                       ? const AssetImage(
-                                              'assets/images/placeholder.png')
-                                          as ImageProvider
-                                      : NetworkImage(controller
-                                          .updatedEngineImageUrl.value),
+                                      'assets/images/placeholder.png')as ImageProvider
+                                      : NetworkImage(controller.updatedEngineImageUrl.value),
+                                    ),
                                 ),
+                                
                               ),
-                            ),
+                            
                             const SizedBox(height: 12.0),
                             Form(
                               key: controller.engineFormKey,
@@ -648,31 +595,7 @@ void _showEditPopup(
                                         fontSize: 12.0,
                                         fontWeight: FontWeight.w600,
                                         maxLines: 2),
-                                    Obx(
-                                      () => Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: ['Generator', 'Compressor']
-                                            .map((option) {
-                                          return Row(children: [
-                                            Radio(
-                                                visualDensity:
-                                                    VisualDensity.compact,
-                                                activeColor:
-                                                    AppColors.blueTextColor,
-                                                value: option,
-                                                groupValue:
-                                                    controller.engineType.value,
-                                                onChanged: (value) {
-                                                  controller.engineType.value =
-                                                      value.toString();
-                                                }),
-                                            CustomTextWidget(
-                                                text: option, fontSize: 11.0)
-                                          ]);
-                                        }).toList(),
-                                      ),
-                                    )
+                                    CategoryDialog()
                                   ]),
                             ),
                             Obx(
@@ -692,6 +615,8 @@ void _showEditPopup(
                                       controller.updateEngine(
                                           id: model.id ?? '');
                                     }
+                                    controller2.fetchEngines(
+                                        model.categoryName, '');
                                   }),
                             ),
                           ]),
@@ -704,7 +629,9 @@ void _showEditPopup(
 void _showDeletePopup(
     {required BuildContext context,
     required EnginesController controller,
-    required EngineModel model}) {
+    required model}) {
+  final CategoriesController categoryController =
+      Get.put(CategoriesController(repository: CategoriesRepository()));
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -761,6 +688,8 @@ void _showDeletePopup(
                           () => InkWell(
                               onTap: () {
                                 controller.deleteEngine(engineModel: model);
+                                categoryController.fetchEngines(
+                                    model.categoryName, '');
                               },
                               child: ReUsableContainer(
                                 verticalPadding: context.height * 0.01,

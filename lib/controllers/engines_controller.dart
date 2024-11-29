@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:app/controllers/category_controller.dart';
 import 'package:app/controllers/universal_controller.dart';
 import 'package:app/helpers/storage_helper.dart';
 import 'package:app/helpers/toast.dart';
@@ -18,9 +19,11 @@ class EnginesController extends GetxController {
   RxString engineImageUrl = ''.obs;
   TextEditingController engineName = TextEditingController();
   TextEditingController engineSubtitle = TextEditingController();
+  var categoryId = ''.obs;
+  var categoryName = ''.obs;
   RxString engineType = 'Generator'.obs;
 
-  RxString updatedEngineImageUrl = ''.obs;
+  var updatedEngineImageUrl = ''.obs;
 
   GlobalKey engineFormKey = GlobalKey<FormState>();
   RxString qrCodeData = ''.obs;
@@ -41,7 +44,8 @@ class EnginesController extends GetxController {
 
   @override
   onInit() {
-    getAllEngines(page: 1);
+     
+    // getAllEngines(page: 1);
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
@@ -92,25 +96,25 @@ class EnginesController extends GetxController {
     isLoading.value = false;
   }
 
-  Future<void> getAllEngines({String? searchName, int? page}) async {
-    universalController.engines.clear();
-    try {
-      isEnginesAreLoading.value = true;
-      _currentPage.value = 1;
-      // Call the service method to fetch the engines
-      fetchedEngines.value = await engineService.getAllEngines(
-        searchString: searchName ?? '',
-        token: storage.read('token'),
-        page: page ?? _currentPage.value,
-      );
-      universalController.engines = fetchedEngines;
-      debugPrint('EnginesCount: ${universalController.engines.length}');
-    } catch (e) {
-      debugPrint('Error fetching engines: $e');
-    } finally {
-      isEnginesAreLoading.value = false;
-    }
-  }
+  // Future<void> getAllEngines({String? searchName, int? page}) async {
+  //   universalController.engines.clear();
+  //   try {
+  //     isEnginesAreLoading.value = true;
+  //     _currentPage.value = 1;
+  //     // Call the service method to fetch the engines
+  //     fetchedEngines.value = await engineService.getAllEngines(
+  //       searchString: searchName ?? '',
+  //       token: storage.read('token'),
+  //       page: page ?? _currentPage.value,
+  //     );
+  //     universalController.engines = fetchedEngines;
+  //     debugPrint('EnginesCount: ${universalController.engines.length}');
+  //   } catch (e) {
+  //     debugPrint('Error fetching engines: $e');
+  //   } finally {
+  //     isEnginesAreLoading.value = false;
+  //   }
+  // }
 
   Future<void> pickImage() async {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -124,7 +128,7 @@ class EnginesController extends GetxController {
     }
   }
 
-  Future<void> updateImage(EngineModel model) async {
+  Future<void> updateImage( model) async {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
@@ -137,13 +141,17 @@ class EnginesController extends GetxController {
           engineId: model.id ?? '',
           token: storage.read('token'));
       if (updatedImageUrl != '') {
+          Get.find<CategoriesController>().fetchEngines(Get.find<CategoriesController>().selectedCategory.value, '');
+         
         ToastMessage.showToastMessage(
-            message: 'Engine Image Updated Successfully',
+            message: 'Image Updated Successfully',
             backgroundColor: Colors.green);
-        model.imageUrl = updatedImageUrl;
-        // engineImageUrl.value = model.imageUrl ?? '';
-        updatedEngineImageUrl.value = model.imageUrl ?? '';
+
+         model.url = updatedImageUrl;
+         updatedEngineImageUrl.value = model.url ?? '';
+        
         update();
+     
       }
     }
   }
@@ -151,7 +159,7 @@ class EnginesController extends GetxController {
   void addEngine() async {
     if (engineImageUrl.value == '') {
       ToastMessage.showToastMessage(
-          message: 'Please Select an Engine Image',
+          message: 'Please Select an Image',
           backgroundColor: Colors.red);
     } else {
       isLoading.value = true;
@@ -161,7 +169,10 @@ class EnginesController extends GetxController {
           name: engineName.text.trim(),
           imageUrl: engineImageUrl.value,
           subname: engineSubtitle.text.trim(),
-          isGenerator: engineType.value == 'Generator',
+        
+          categoryId: categoryId.value,
+          categoryName:categoryName.value,
+            isGenerator: engineType.value == 'Generator',
           isCompressor: engineType.value == 'Compressor',
           isDefault: false,
         );
@@ -170,7 +181,7 @@ class EnginesController extends GetxController {
 
         if (success) {
           ToastMessage.showToastMessage(
-              message: 'Engine Added Successfully',
+              message: 'Added Successfully',
               backgroundColor: Colors.green);
           isLoading.value = false;
           pageController.nextPage(
@@ -178,7 +189,7 @@ class EnginesController extends GetxController {
 
           isQrCodeGenerated.value = true;
           engineType.value = 'Generator';
-          getAllEngines();
+          // getAllEngines();
         } else {
           ToastMessage.showToastMessage(
               message: 'Something went wrong, please try again',
@@ -204,6 +215,9 @@ class EnginesController extends GetxController {
         subname: engineSubtitle.text.trim(),
         isGenerator: engineType.value == 'Generator',
         isCompressor: engineType.value == 'Compressor',
+          categoryId: categoryId.value,
+          categoryName:categoryName.value,
+        
         isDefault: false,
       );
       bool success = await engineService.updateEngine(
@@ -211,23 +225,24 @@ class EnginesController extends GetxController {
       isLoading.value = false;
       if (success) {
         ToastMessage.showToastMessage(
-            message: 'Engine Updated Successfully',
+            message: 'Updated Successfully',
             backgroundColor: Colors.green);
-        getAllEngines();
+        // getAllEngines();
+       Get.find<CategoriesController>().fetchEngines( Get.find<CategoriesController>().selectedCategory.value, '');
         Get.back();
       } else {
         ToastMessage.showToastMessage(
-            message: 'Failed to update engine, please try again',
+            message: 'Failed to update, please try again',
             backgroundColor: Colors.red);
       }
     } catch (e) {
-      debugPrint('Error updating engine: $e');
+      debugPrint('Error updating: $e');
     } finally {
       // isLoading.value = false;
     }
   }
 
-  Future<void> deleteEngine({required EngineModel engineModel}) async {
+  Future<void> deleteEngine({required  engineModel}) async {
     debugPrint('DeleteEngineFunctionCalled');
 
     try {
@@ -248,14 +263,14 @@ class EnginesController extends GetxController {
 
       if (success) {
         ToastMessage.showToastMessage(
-          message: 'Engine Deleted Successfully',
+          message: 'Deleted Successfully',
           backgroundColor: Colors.green,
         );
-        getAllEngines();
+        // getAllEngines();
         Get.back();
       } else {
         ToastMessage.showToastMessage(
-          message: 'Failed to delete engine, please try again',
+          message: 'Failed to delete, please try again',
           backgroundColor: Colors.red,
         );
       }
@@ -264,7 +279,7 @@ class EnginesController extends GetxController {
         message: 'Something went wrong, please try again',
         backgroundColor: Colors.red,
       );
-      debugPrint('Error deleting engine: $e');
+      debugPrint('Error deleting: $e');
     } finally {
       isLoading.value = false;
     }
