@@ -37,6 +37,8 @@ class CategoriesController extends GetxController {
   // Variables to store selected category data
   var selectedCategoryName = ''.obs;
   var selectedCategoryId = ''.obs;
+  var selectedCategoryDataId = ''.obs;
+  var selectedCategoryDataName = ''.obs;
 void onInit(){
   super.onInit();
   fetchCategories();

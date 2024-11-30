@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../../controllers/engines_controller.dart';
 import '../../controllers/universal_controller.dart';
 
 class MyAttachmentModel {
@@ -170,7 +171,8 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                             color: Colors.white,
                           ),
                           CustomTextWidget(
-                            text: widget.reportName,
+                           text: widget.reportName,
+                          
                             fontSize: 18.0,
                             fontWeight: FontWeight.w600,
                             textColor: Colors.white,
@@ -804,6 +806,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     showDeleteIcon: _task.value.isDefault ? true : true,
                     showEditIcon: _task.value.isDefault ? true : true,
                     showEditTitle: _task.value.isDefault ? true : true,
+                    showAddIcon: _task.value.isDefault ? true : true,
                     title: element.label ?? '',
                     controller: TextEditingController(text: element.value),
                     onChanged: (String? value) => element.value = value ?? '',
@@ -835,6 +838,11 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
               
                       });
                     },
+                  onAddTap: () {
+                int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
+                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },       
                   );
                 case MyCustomItemType.textarea:
                   return HeadingAndTextfield(
@@ -842,6 +850,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     showDeleteIcon: _task.value.isDefault ? true : true,
                     showEditIcon: _task.value.isDefault ? true : true,
                     showEditTitle: _task.value.isDefault ? true : true,
+                    showAddIcon: _task.value.isDefault ? true : true,
                     title: element.label ?? '',
                     controller: TextEditingController(text: element.value),
                     onChanged: (String? value) => element.value = value ?? '',
@@ -869,6 +878,11 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
               
                       });
                     },
+                 onAddTap: () {
+                int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
+                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },    
                   );
                 case MyCustomItemType.radiobutton:
                   return CustomRadioButton(
@@ -878,6 +892,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     showDeleteIcon: _task.value.isDefault ? true : true,
                     showEditIcon: _task.value.isDefault ? true : true,
                      showEditTitle: _task.value.isDefault ? true : true,
+                     showAddIcon: _task.value.isDefault ? true : true,
                     onChange: (String value) => element.value = value,
                     onDelete: () {
                       _task.value.pages[currentPage].sections[sectionIndex]
@@ -902,7 +917,12 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                 Get.back();
               
                       });
-                    },   
+                    },  
+                   onAddTap: () {
+                int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
+                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },      
                   );
                 case MyCustomItemType.checkbox:
                   List<String> selectedValues;
@@ -927,6 +947,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     showDeleteIcon: _task.value.isDefault ? true : true,
                     showEditIcon: _task.value.isDefault ? true : true,
                     showEditTitle: _task.value.isDefault ? true : true,
+                    showAddIcon: _task.value.isDefault ? true : true,
 
                     onDelete: () {
                       _task.value.pages[currentPage].sections[sectionIndex]
@@ -951,7 +972,13 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                 Get.back();
             
                       });
-                    },   
+                    },  
+                 onAddTap: () {
+                int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
+                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },  
+                     
                   );
                 case MyCustomItemType.attachment:
                   MyAttachmentModel? attach;
@@ -968,7 +995,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                           : element.value.toString(),
                       // : listOfAttachments[element.value].name,
                       readOnly: listOfAttachments.isEmpty ? true : true,
-                      
+                       showAddIcon: _task.value.isDefault ? true : true,
                       onTap: () async {
                         int? oldIndex;
                         if (attach != null) {
@@ -1035,6 +1062,11 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
             
                       });
                     },
+                onAddTap: () {
+                int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
+                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                      _task.refresh();
+                    },      
                       showEyeIcon: widget.task == null
                           ? attach != null
                           : element.value != '',

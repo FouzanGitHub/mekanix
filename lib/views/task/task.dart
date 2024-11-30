@@ -9,6 +9,7 @@ import 'package:app/helpers/tabbar.dart';
 import 'package:app/helpers/toast.dart';
 import 'package:app/models/custom_task_model.dart';
 import 'package:app/services/engine_service.dart';
+import 'package:app/views/engines/category_dialog.dart';
 import 'package:app/views/task/custom_task.dart';
 import 'package:app/views/task/scan_qrcode.dart';
 import 'package:app/views/task/widgets/heading_and_textfield.dart';
@@ -18,6 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+
+import '../../controllers/category_controller.dart';
+import '../engines/category_data.dart';
 
 class TaskScreen extends StatefulWidget {
   final SideMenuController? sideMenu;
@@ -504,59 +508,61 @@ class CustomTemplatePopup {
               ),
             ],
           ),
-          Obx(
-            () => InkWell(
-              onTap: () {
-                universalController.engines.isEmpty
-                    ? ToastMessage.showToastMessage(
-                        message:
-                            'Please Add Engines first from the Engine section.',
-                        backgroundColor: Colors.red)
-                    : null;
-              },
-              child: CustomDropdown(
-                items: universalController.engines,
-                hintText: controller.engineBrandName.value != ''
-                    ? controller.engineBrandName.value
-                    : 'Select Engine Brand',
-                onChanged: (value) async {
-                  try {
-                    final result = await EngineService()
-                        .getEngineData(engineName: value?.name ?? '');
+          // Obx(
+          //   () => InkWell(
+          //     onTap: () {
+          //       universalController.engines.isEmpty
+          //           ? ToastMessage.showToastMessage(
+          //               message:
+          //                   'Please Add Engines first from the Engine section.',
+          //               backgroundColor: Colors.red)
+          //           : null;
+          //     },
+          //     child: CustomDropdown(
+          //       items: universalController.engines,
+          //       hintText: controller.engineBrandName.value != ''
+          //           ? controller.engineBrandName.value
+          //           : 'Select Engine Brand',
+          //       onChanged: (value) async {
+          //         try {
+          //           final result = await EngineService()
+          //               .getEngineData(engineName: value?.name ?? '');
 
-                    if (result['success']) {
-                      ToastMessage.showToastMessage(
-                          message: 'Engine Selected',
-                          backgroundColor: Colors.green);
-                      final engineData = result['data'];
-                      final engineId = engineData['_id'];
-                      final engineName = engineData['name'];
+          //           if (result['success']) {
+          //             ToastMessage.showToastMessage(
+          //                 message: 'Engine Selected',
+          //                 backgroundColor: Colors.green);
+          //             final engineData = result['data'];
+          //             final engineId = engineData['_id'];
+          //             final engineName = engineData['name'];
 
-                      controller.engineBrandName.value = engineName ?? '';
-                      controller.engineBrandId.value = engineId;
-                      debugPrint('EngineId: ${controller.engineBrandId.value}');
-                      debugPrint(
-                          'EngineName: ${controller.engineBrandName.value}');
-                    } else {
-                      final errorMessage = result['message'];
-                      debugPrint('Failed to fetch engine data');
-                      debugPrint('ErrorData: ${result['data']}');
-                      debugPrint('ErrorMessage: $errorMessage');
+          //             controller.engineBrandName.value = engineName ?? '';
+          //             controller.engineBrandId.value = engineId;
+          //             debugPrint('EngineId: ${controller.engineBrandId.value}');
+          //             debugPrint(
+          //                 'EngineName: ${controller.engineBrandName.value}');
+          //           } else {
+          //             final errorMessage = result['message'];
+          //             debugPrint('Failed to fetch engine data');
+          //             debugPrint('ErrorData: ${result['data']}');
+          //             debugPrint('ErrorMessage: $errorMessage');
 
-                      ToastMessage.showToastMessage(
-                          message: errorMessage,
-                          backgroundColor: AppColors.blueTextColor);
-                    }
-                  } catch (e) {
-                    debugPrint('An error occurred: $e');
-                    ToastMessage.showToastMessage(
-                        message: 'An error occurred, please try again',
-                        backgroundColor: AppColors.blueTextColor);
-                  }
-                },
-              ),
-            ),
-          ),
+          //             ToastMessage.showToastMessage(
+          //                 message: errorMessage,
+          //                 backgroundColor: AppColors.blueTextColor);
+          //           }
+          //         } catch (e) {
+          //           debugPrint('An error occurred: $e');
+          //           ToastMessage.showToastMessage(
+          //               message: 'An error occurred, please try again',
+          //               backgroundColor: AppColors.blueTextColor);
+          //         }
+          //       },
+          //     ),
+          //   ),
+          // ),\
+          // CategoryDialog(),
+          CategoryDataDialog(),
           Obx(
             () => CustomButton(
               usePrimaryColor:
@@ -576,10 +582,12 @@ class CustomTemplatePopup {
                       isDefault: task.isDefault,
                     ),
                   );
+                Get.find<CategoriesController>().selectedCategoryDataName.value = '';
                 } else {
                   ToastMessage.showToastMessage(
                       message: 'Please Select Engine from the Dropdown.',
                       backgroundColor: AppColors.blueTextColor);
+                  
                 }
               },
               isLoading: false,

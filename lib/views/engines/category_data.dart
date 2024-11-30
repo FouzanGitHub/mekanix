@@ -4,25 +4,28 @@ import 'package:app/helpers/dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/category_controller.dart';
+import '../../controllers/custom_task_controller.dart';
 import '../../controllers/engines_controller.dart';
 import '../../services/category_service.dart';
 
 
-class CategoryDialog extends StatelessWidget {
+class CategoryDataDialog extends StatelessWidget {
   final CategoriesController controller = Get.put(CategoriesController(repository: CategoriesRepository()));
  final EnginesController engineController = Get.put(EnginesController());
+ final CustomTaskController taskController = Get.put(CustomTaskController());
   @override
   Widget build(BuildContext context) {
     return   Obx(() {
-        if (controller.categoriesResponse.value == null) {
+         controller.fetchEngines('', '');
+        if (controller.enginesResponse.value == null) {
           return const Center(child: CircularProgressIndicator(color: Colors.orange,));
         }
-
-        final categories = controller.categoriesResponse.value?.data ?? [];
         
+        final categories = controller.enginesResponse.value?.engines ?? [];
+     
         return CustomDropdown2(
-          hintText: 'Select Type', 
-          value: controller.selectedCategoryName.value.isEmpty ? null : controller.selectedCategoryName.value,
+          hintText: 'Select ', 
+          value: controller.selectedCategoryDataName.value.isEmpty ? null : controller.selectedCategoryDataName.value,
           items: categories.map((category) {
                   return DropdownMenuItem<String>(
                     value: category.name,
@@ -30,16 +33,17 @@ class CategoryDialog extends StatelessWidget {
                   );
                 }).toList(),
           onChanged: (newValue) {
+            
                   // Find the category based on the selected name
-                  final selectedCategory = categories.firstWhere((category) => category.name == newValue);
+                  final selectedCategoryData = categories.firstWhere((category) => category.name == newValue);
                   
                   // Save the selected name and id to different variables
-                  controller.selectedCategoryName.value = selectedCategory.name ?? '';
-                  controller.selectedCategoryId.value = selectedCategory.id ?? '';
+                  controller.selectedCategoryDataName.value = selectedCategoryData.name ?? '';
+                  controller.selectedCategoryDataId.value = selectedCategoryData.id ?? '';
                   
-                    engineController.categoryName.value =  controller.selectedCategoryName.value;
-                   engineController.categoryId.value =  controller.selectedCategoryId.value;
-                
+                    taskController.engineBrandName.value =  controller.selectedCategoryDataName.value;
+                   taskController.engineBrandId.value =  controller.selectedCategoryDataId.value;
+                  print('sadad${  taskController.engineBrandId.value}');
                 }, 
           
           );

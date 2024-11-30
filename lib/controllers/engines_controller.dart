@@ -189,6 +189,7 @@ class EnginesController extends GetxController {
 
           isQrCodeGenerated.value = true;
           engineType.value = 'Generator';
+          Get.find<CategoriesController>().fetchEngines(Get.find<CategoriesController>().selectedCategory.value, '');   
           // getAllEngines();
         } else {
           ToastMessage.showToastMessage(

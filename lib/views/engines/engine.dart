@@ -90,7 +90,7 @@ class EnginesScreen extends StatelessWidget {
                     children: [
                       ReUsableTextField(
                         controller: categoryController.searchController,
-                        hintText: 'Search Engine',
+                        hintText: 'Search',
                         suffixIcon: const Icon(Icons.search_sharp),
                         onChanged: (value) {
                           categoryController.fetchEngines(
@@ -100,7 +100,7 @@ class EnginesScreen extends StatelessWidget {
                       CustomButton(
                         usePrimaryColor: true,
                         isLoading: false,
-                        buttonText: '+ Add Engine',
+                        buttonText: '+ Add',
                         fontSize: 14,
                         onTap: () {
                           controller.isQrCodeGenerated.value = false;
@@ -330,7 +330,10 @@ void _openAddEngineDialog({
                               children: [
                                 SingleChildScrollView(
                                     child: DialogFirstView(
-                                        controller: controller)),
+                                        controller: controller,
+                                        controller2: controller2,
+                                        categoryName:  controller2.selectedCategory.value
+                                        )),
                                 SingleChildScrollView(
                                     child: DialogSecondView(
                                         controller: controller)),
@@ -341,10 +344,13 @@ void _openAddEngineDialog({
 
 class DialogFirstView extends StatelessWidget {
   final EnginesController controller;
-
+  final CategoriesController controller2;
+  final dynamic categoryName;
   const DialogFirstView({
     super.key,
     required this.controller,
+    required  this.controller2,
+    required  this.categoryName,
   });
 
   @override
@@ -399,7 +405,10 @@ class DialogFirstView extends StatelessWidget {
                   controller.engineFormKey.currentState as FormState?;
               if (formState != null && formState.validate()) {
                 controller.addEngine();
+                 
               }
+          
+             
             }),
       ),
       const Divider(color: Colors.black54),

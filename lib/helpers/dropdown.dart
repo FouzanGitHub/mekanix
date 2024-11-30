@@ -65,14 +65,16 @@ class CustomDropdown extends StatelessWidget {
 
 class CustomDropdown2 extends StatelessWidget {
   final String hintText;
-  final List<EngineModel> items;
-  final void Function(EngineModel?)? onChanged;
+  final  List<DropdownMenuItem<dynamic>>? items;
+  final dynamic onChanged;
+  final dynamic value;
 
   const CustomDropdown2({
     super.key,
     required this.items,
     required this.onChanged,
     required this.hintText,
+    required this.value,
   });
 
   @override
@@ -80,6 +82,7 @@ class CustomDropdown2 extends StatelessWidget {
     return ReUsableContainer(
       padding: EdgeInsets.zero,
       child: DropdownButtonFormField(
+        value: value,
         padding: EdgeInsets.zero,
         iconSize: 12.0,
         alignment: Alignment.centerLeft,
@@ -105,16 +108,7 @@ class CustomDropdown2 extends StatelessWidget {
           filled: true,
           border: const OutlineInputBorder(borderSide: BorderSide.none),
         ),
-        items: items
-            .map((options) => DropdownMenuItem(
-                value: options,
-                child: CustomTextWidget(
-                  text: options.name ?? '',
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w300,
-                  textColor: AppColors.textColor,
-                )))
-            .toList(),
+        items: items,
         onChanged: onChanged,
       ),
     );

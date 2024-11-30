@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app/helpers/appcolors.dart';
 import 'package:app/helpers/custom_text.dart';
@@ -15,6 +16,8 @@ class CustomRadioButton extends StatelessWidget {
     final bool showEditTitle;
   final VoidCallback? onEditTitle;
   final Function(String) onChange;
+   final bool showAddIcon;
+  final VoidCallback? onAddTap;
 
   const CustomRadioButton({
     super.key,
@@ -28,6 +31,8 @@ class CustomRadioButton extends StatelessWidget {
     this.showEditTitle = false,
     this.onEditTitle,  
     required this.onChange,
+     this.showAddIcon = false,
+    this.onAddTap,
   });
 
   @override
@@ -37,28 +42,43 @@ class CustomRadioButton extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // const SizedBox(height: 6.0),
-       InkWell(
-              onTap: onEditTitle,
-              child: Row(
-             
-                children: [
-                Visibility(
-                visible: showEditTitle,
-                child: const Icon(Icons.edit,color: Colors.grey,size: 18,)),
-                  const SizedBox(width: 1),
-                  SizedBox(
+       Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+         children: [
+           InkWell(
+                  onTap: onEditTitle,
+                  child: Row(
                  
-                width: 270,
-                    child: CustomTextWidget(
-                    text: heading,
-                    fontWeight: FontWeight.w500,
-                    maxLines: 2,
-                    fontSize:  12,
-                                  ),
+                    children: [
+                    Visibility(
+                    visible: showEditTitle,
+                    child: const Icon(Icons.edit,color: Colors.grey,size: 18,)),
+                      const SizedBox(width: 1),
+                      SizedBox(
+                     
+                    width: 270,
+                        child: CustomTextWidget(
+                        text: heading,
+                        fontWeight: FontWeight.w500,
+                        maxLines: 2,
+                        fontSize:  12,
+                                      ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ), 
+                ),
+        Visibility(
+                visible: showAddIcon,
+                child: InkWell(
+                  onTap: onAddTap,
+                  child: const Icon(
+                    CupertinoIcons.add_circled_solid,
+                    color: Color.fromARGB(255, 110, 110, 110),
+                  ),
+                ),
+              ),           
+         ],
+       ), 
         // InkWell(
         //   onTap: onEditTitle,
         //   child: CustomTextWidget(

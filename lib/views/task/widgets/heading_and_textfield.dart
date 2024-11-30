@@ -24,6 +24,8 @@ class HeadingAndTextfield extends StatelessWidget {
   final VoidCallback? onEdit;
   final bool showEyeIcon;
   final VoidCallback? onEyeTap;
+  final bool showAddIcon;
+  final VoidCallback? onAddTap;
 
   const HeadingAndTextfield({
     super.key,
@@ -47,6 +49,8 @@ class HeadingAndTextfield extends StatelessWidget {
     this.editTitle, 
     this.showEditTitle = false,
     this.onEyeTap,
+    this.showAddIcon = false,
+    this.onAddTap,
   });
 
   @override
@@ -81,8 +85,18 @@ class HeadingAndTextfield extends StatelessWidget {
                 ],
               ),
             ),
-              
-
+           
+             Visibility(
+                visible: showAddIcon,
+                child: InkWell(
+                  onTap: onAddTap,
+                  child: const Icon(
+                    CupertinoIcons.add_circled_solid,
+                    color: Color.fromARGB(255, 110, 110, 110),
+                  ),
+                ),
+              ),  
+              if(showEyeIcon == true)
               Visibility(
                 visible: showEyeIcon,
                 child: InkWell(
