@@ -81,11 +81,13 @@ class _TaskScreenState extends State<TaskScreen> {
             ),
             child: Scaffold(
               backgroundColor: Colors.transparent,
-              body: NestedScrollView(
+              body:
+               NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverAppBar(
-                      expandedHeight: context.height * 0.13,
+                      // expandedHeight: context.height * 0.13,
+                      expandedHeight: context.height * 0.01,
                       pinned: false,
                       floating: true,
                       primary: false,
@@ -95,14 +97,20 @@ class _TaskScreenState extends State<TaskScreen> {
                       flexibleSpace: ListView(
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          Obx(
-                            () => TopSection(
-                              controller: controller,
-                              reportNameController: reportNameController,
-                              universalController: widget.universalController,
-                              currentPage: currentPage.value,
-                            ),
-                          )
+                          SizedBox(height: 20,),
+                          Center(child: Obx(()=> CustomTextWidget(
+                          text: currentPage == 0 ? 'Submitted Reports' : 'Templates',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          ))),
+                          // Obx(
+                          //   () => TopSection(
+                          //     controller: controller,
+                          //     reportNameController: reportNameController,
+                          //     universalController: widget.universalController,
+                          //     currentPage: currentPage.value,
+                          //   ),
+                          // )
                         ],
                       ),
                     )
