@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:app/controllers/category_controller.dart';
 import 'package:app/controllers/engines_controller.dart';
@@ -9,6 +10,7 @@ import 'package:app/helpers/custom_text.dart';
 import 'package:app/helpers/reusable_container.dart';
 import 'package:app/helpers/reusable_textfield.dart';
 import 'package:app/helpers/tabbar.dart';
+import 'package:app/helpers/toast.dart';
 import 'package:app/helpers/validator.dart';
 
 import 'package:app/views/task/widgets/heading_and_textfield.dart';
@@ -16,8 +18,13 @@ import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:printing/printing.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
+import 'package:pdf/widgets.dart' as pw;
 import '../../services/category_service.dart';
 
 import 'category_dialog.dart';
@@ -100,7 +107,7 @@ class EnginesScreen extends StatelessWidget {
                       CustomButton(
                         usePrimaryColor: true,
                         isLoading: false,
-                        buttonText: '+ Add',
+                        buttonText: '+ Add Equipment',
                         fontSize: 14,
                         onTap: () {
                           controller.isQrCodeGenerated.value = false;
@@ -375,17 +382,17 @@ class DialogFirstView extends StatelessWidget {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             HeadingAndTextfield(
-                title: 'Enter Engine Name & Model',
+                title: 'Enter Equipment Name & Model',
                 fontSize: 12.0,
                 controller: controller.engineName,
                 validator: (val) => AppValidator.validateEmptyText(
-                    fieldName: 'Engine Name & Model', value: val)),
+                    fieldName: 'Equipment Name & Model', value: val)),
             HeadingAndTextfield(
                 title: 'Enter Subtitle',
                 fontSize: 12.0,
                 controller: controller.engineSubtitle,
                 validator: (val) => AppValidator.validateEmptyText(
-                    fieldName: 'Engine Subtitle', value: val)),
+                    fieldName: 'Equipment Subtitle', value: val)),
             const CustomTextWidget(
                 text: 'Select Type',
                 fontSize: 12.0,
@@ -419,7 +426,10 @@ class DialogFirstView extends StatelessWidget {
                   text: 'Generate QR Code by filling the above fields.',
                   maxLines: 2,
                   fontSize: 12.0,
-                  textAlign: TextAlign.center)))
+                  textAlign: TextAlign.center,
+                  ),
+                  ),
+                  ),
     ]);
   }
 }
@@ -431,7 +441,114 @@ class DialogSecondView extends StatelessWidget {
     super.key,
     required this.controller,
   });
+ Future<void> _downloadQrCode() async {
+    // Request storage permission
+    // PermissionStatus permissionStatus = await Permission.storage.request();
 
+   
+      try {
+        // Create a QrPainter instance
+        final qrPainter = QrPainter(
+          data: controller.engineName.text.trim(),
+          version: QrVersions.auto,
+          errorCorrectionLevel: QrErrorCorrectLevel.L,
+          gapless: false,
+         
+        );
+
+        // Capture the QR code as an image
+        final recorder = PictureRecorder();
+        final canvas = Canvas(recorder, Rect.fromPoints(Offset(0, 0), Offset(200, 200)));
+        qrPainter.paint(canvas, Size(200, 200));
+
+        final picture = recorder.endRecording();
+        final img = await picture.toImage(200, 200);
+
+        // Convert the image to bytes
+        final byteData = await img.toByteData(format: ImageByteFormat.png);
+        final buffer = byteData!.buffer.asUint8List();
+
+        // Get the directory to store the image
+        final directory = await getExternalStorageDirectory();
+        final filePath = '${directory!.path}/qr_code.png';
+        final file = File(filePath);
+
+        // Save the bytes to a file
+        await file.writeAsBytes(buffer);
+
+        // Save to gallery
+        final result = await ImageGallerySaver.saveFile(filePath);
+        if (result['isSuccess'] == true) {
+          ToastMessage.showToastMessage(
+            message: 'QR Code successfully saved in gallery',
+            backgroundColor: Colors.green);
+         Get.back();
+        } else {
+          ToastMessage.showToastMessage(
+            message: 'Failed to Download QR code',
+            backgroundColor: Colors.red);
+ 
+        }
+      } catch (e) {
+         ToastMessage.showToastMessage(
+            message: 'Failed to download QR code Image: $e',
+            backgroundColor: Colors.red);
+     
+        print('${e}');
+      }
+    
+  }
+  // Function to print the QR code
+  // Future<void> _printQrCode() async {
+  //   final qrData = controller.engineName.text.trim();
+
+  //   if (qrData.isEmpty) {
+  //     Get.snackbar('Error', 'QR Code data is empty');
+  //     return;
+  //   }
+
+  //   // Create a PDF document
+  //   final pdf = pw.Document();
+
+  //   // Add the QR code as an image to the PDF
+  //   final qrPainter = QrPainter(
+  //     data: qrData,
+  //     version: QrVersions.auto,
+  //     errorCorrectionLevel: QrErrorCorrectLevel.L,
+  //     gapless: false,
+   
+  //   );
+
+  //   final recorder = PictureRecorder();
+  //   final canvas = Canvas(recorder, Rect.fromPoints(Offset(0, 0), Offset(200, 200)));
+  //   qrPainter.paint(canvas, Size(200, 200));
+
+  //   final picture = recorder.endRecording();
+  //   final img = await picture.toImage(200, 200);
+
+  //   // Convert the image to bytes
+  //   final byteData = await img.toByteData(format: ImageByteFormat.png);
+  //   final buffer = byteData!.buffer.asUint8List();
+
+  //   // Add the QR code image to the PDF
+  //   pdf.addPage(
+  //     pw.Page(
+  //       build: (pw.Context context) {
+  //         return pw.Center(
+  //           child: pw.Image(
+  //             pw.MemoryImage(buffer),
+  //             fit: pw.BoxFit.contain,
+  //             width: 200.0,
+  //             height: 200.0,
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+
+  //   // Print the PDF
+  //   await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+  // }
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -459,11 +576,28 @@ class DialogSecondView extends StatelessWidget {
         ),
        
         const Divider(color: Colors.black54),
-        CustomButton(
+         CustomButton(
           isLoading: false,
           usePrimaryColor: controller.isQrCodeGenerated.value == true,
+          buttonText: 'Download QR Code',
+          fontSize: 12.0,
+          onTap: _downloadQrCode,
+        ),
+        //  CustomButton(
+        //   isLoading: false,
+        //   usePrimaryColor: controller.isQrCodeGenerated.value == true,
+        //   buttonText: 'Print QR Code',
+        //   fontSize: 12.0,
+        //   onTap: _printQrCode,
+        // ),
+        
+        CustomButton(
+          isLoading: false,
+          usePrimaryColor: controller.isQrCodeGenerated.value == false,
+          textColor: Colors.white,
           buttonText: 'Close',
           fontSize: 12.0,
+
           onTap: () {
             controller.isQrCodeGenerated.value = false;
             controller.engineImageUrl.value = '';
@@ -583,13 +717,13 @@ void _showEditPopup(
                                     //     text: 'ID: ${model.id}',
                                     //     fontSize: 11.0),
                                     HeadingAndTextfield(
-                                        title: 'Enter Engine Name & Model',
+                                        title: 'Enter Equipment Name & Model',
                                         fontSize: 12.0,
                                         controller: controller.engineName,
                                         validator: (val) =>
                                             AppValidator.validateEmptyText(
                                                 fieldName:
-                                                    'Engine Name & Model',
+                                                    'Equipment Name & Model',
                                                 value: val)),
                                     HeadingAndTextfield(
                                         title: 'Enter Subtitle',
@@ -597,10 +731,10 @@ void _showEditPopup(
                                         controller: controller.engineSubtitle,
                                         validator: (val) =>
                                             AppValidator.validateEmptyText(
-                                                fieldName: 'Engine Subtitle',
+                                                fieldName: 'Equipment Subtitle',
                                                 value: val)),
                                     const CustomTextWidget(
-                                        text: 'Select Engine Type',
+                                        text: 'Select Equipment Type',
                                         fontSize: 12.0,
                                         fontWeight: FontWeight.w600,
                                         maxLines: 2),

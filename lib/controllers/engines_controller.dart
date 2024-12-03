@@ -5,6 +5,7 @@ import 'package:app/controllers/universal_controller.dart';
 import 'package:app/helpers/storage_helper.dart';
 import 'package:app/helpers/toast.dart';
 import 'package:app/models/engine_model.dart';
+import 'package:app/services/category_service.dart';
 import 'package:app/services/engine_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,6 +20,7 @@ class EnginesController extends GetxController {
   RxString engineImageUrl = ''.obs;
   TextEditingController engineName = TextEditingController();
   TextEditingController engineSubtitle = TextEditingController();
+  final CategoriesController categoriesController = Get.put(CategoriesController(repository: CategoriesRepository()));
   var categoryId = ''.obs;
   var categoryName = ''.obs;
   RxString engineType = 'Generator'.obs;
@@ -189,8 +191,10 @@ class EnginesController extends GetxController {
 
           isQrCodeGenerated.value = true;
           engineType.value = 'Generator';
-          Get.find<CategoriesController>().fetchEngines(Get.find<CategoriesController>().selectedCategory.value, '');   
+          categoriesController.fetchEngines(categoriesController.selectedCategory.value, '');
+          // Get.find<CategoriesController>().fetchEngines(Get.find<CategoriesController>().selectedCategory.value, '');   
           // getAllEngines();
+             Get.back();
         } else {
           ToastMessage.showToastMessage(
               message: 'Something went wrong, please try again',
@@ -229,7 +233,8 @@ class EnginesController extends GetxController {
             message: 'Updated Successfully',
             backgroundColor: Colors.green);
         // getAllEngines();
-       Get.find<CategoriesController>().fetchEngines( Get.find<CategoriesController>().selectedCategory.value, '');
+
+      categoriesController.fetchEngines(categoriesController.selectedCategory.value, '');
         Get.back();
       } else {
         ToastMessage.showToastMessage(
@@ -267,7 +272,7 @@ class EnginesController extends GetxController {
           message: 'Deleted Successfully',
           backgroundColor: Colors.green,
         );
-        // getAllEngines();
+       categoriesController.fetchEngines(categoriesController.selectedCategory.value, '');
         Get.back();
       } else {
         ToastMessage.showToastMessage(

@@ -228,7 +228,7 @@ class HomeAppbar extends StatelessWidget {
       case 1:
         return 'Task';
       case 2:
-        return 'Engines';
+        return 'Equipments';
       case 4:
         return 'Profile';
       default:

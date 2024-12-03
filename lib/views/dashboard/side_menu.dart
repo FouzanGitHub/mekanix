@@ -100,7 +100,7 @@ class SideMenuCard extends StatelessWidget {
         },
       ),
       _buildSideMenuItem(
-        title: 'Engines',
+        title: 'Equipments',
         icon: FontAwesomeIcons.searchengin,
         onTap: (index, _) {
           sideMenu.changePage(index);

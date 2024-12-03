@@ -44,6 +44,7 @@ void onInit(){
   fetchCategories();
     selectedCategory.value = 'Engine';
     fetchEngines(selectedCategory.value, '');
+    fetchAllEquipments();
   // print('assadadasddasd${categoriesResponse.value}');
 }
 
@@ -51,6 +52,7 @@ void onInit(){
 
 
   var enginesResponse = Rx<EnginesResponse?>(null);
+  var equipmentResponse = Rx<EnginesResponse?>(null);
 
   var searchTerm = ''.obs;
 
@@ -71,6 +73,20 @@ void onInit(){
       isLoading.value = false;
     }
   }
+  Future<void> fetchAllEquipments() async {
+    isLoading.value = true;
+    errorMessage.value = '';
 
+    try {
+      equipmentResponse.value = await repository.fetchEquipments();
+      print('Engines fetched: ${equipmentResponse.value?.engines?.length}');
+      print('Engines fetched: ${equipmentResponse.value?.engines[0].categoryId}');
+    } catch (e) {
+      errorMessage.value = 'Failed to load engines: $e';
+      print('Engines fetched: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
   
 }

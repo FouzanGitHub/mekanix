@@ -461,7 +461,7 @@ class CustomTemplatePopup {
         children: [
           const CustomTextWidget(
             text:
-                'Please select the engine first for which you need to create this report.',
+                'Please select the equipment first for which you need to create this report.',
             fontSize: 12.0,
             maxLines: 5,
             fontWeight: FontWeight.w600,
@@ -470,7 +470,7 @@ class CustomTemplatePopup {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const CustomTextWidget(
-                text: 'Engine Brand',
+                text: 'Equipment Type',
                 fontWeight: FontWeight.w500,
                 fontSize: 12.0,
                 maxLines: 2,
@@ -582,7 +582,7 @@ class CustomTemplatePopup {
                       isDefault: task.isDefault,
                     ),
                   );
-                Get.find<CategoriesController>().selectedCategoryDataName.value = '';
+                // Get.find<CategoriesController>().selectedCategoryDataName.value = '';
                 } else {
                   ToastMessage.showToastMessage(
                       message: 'Please Select Engine from the Dropdown.',
