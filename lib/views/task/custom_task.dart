@@ -113,74 +113,82 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                   backgroundColor: Colors.red,
                   forceMaterialTransparency: true,
                   expandedHeight: context.height * 0.1,
-                  flexibleSpace: Center(
-                    child: InkWell(
-                      onTap: () {
-                        showCustomPopup(
-                          context: context,
-                          width: context.width * 0.8,
-                          widget: Form(
-                            key: _validateEmail,
-                            child: Column(
-                              children: [
-                                const CustomTextWidget(
-                                  text: 'Edit Name',
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                HeadingAndTextfield(
-                                  title: 'Enter Name',
-                                  controller: _editNameController,
-                                  hintText: 'Enter Name',
-                                  validator: (val) =>
-                                      AppValidator.validateEmail(value: val),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                CustomButton(
-                                  buttonText: 'Done',
-                                  onTap: () {
-                                    setState(() {
-                                      widget.reportName =
-                                          _editNameController.text.trim();
-                                      _task.value.name =
-                                          _editNameController.text.trim();
-                                    });
-
-                                    Navigator.pop(context); // Close the popup
-                                  },
-                                  isLoading: false,
-                                  usePrimaryColor: false,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                          ),
-                          CustomTextWidget(
-                           text: widget.reportName,
-                          
+                  flexibleSpace:  Center(
+                    child: CustomTextWidget(
+                             text: widget.reportName,
                             fontSize: 18.0,
-                            fontWeight: FontWeight.w600,
-                            textColor: Colors.white,
-                          ),
-                        ],
-                      ),
-                    ),
+                              fontWeight: FontWeight.w600,
+                              textColor: Colors.white,
+                            ),
                   ),
+                  // Center(
+                  //   child: InkWell(
+                  //     onTap: () {
+                  //       showCustomPopup(
+                  //         context: context,
+                  //         width: context.width * 0.8,
+                  //         widget: Form(
+                  //           key: _validateEmail,
+                  //           child: Column(
+                  //             children: [
+                  //               const CustomTextWidget(
+                  //                 text: 'Edit Name',
+                  //                 fontSize: 18.0,
+                  //                 fontWeight: FontWeight.bold,
+                  //                 maxLines: 1,
+                  //                 textAlign: TextAlign.center,
+                  //               ),
+                  //               const SizedBox(
+                  //                 height: 10,
+                  //               ),
+                  //               HeadingAndTextfield(
+                  //                 title: 'Enter Name',
+                  //                 controller: _editNameController,
+                  //                 hintText: 'Enter Name',
+                  //                 validator: (val) =>
+                  //                     AppValidator.validateEmail(value: val),
+                  //               ),
+                  //               const SizedBox(
+                  //                 height: 10,
+                  //               ),
+                  //               CustomButton(
+                  //                 buttonText: 'Done',
+                  //                 onTap: () {
+                  //                   setState(() {
+                  //                     widget.reportName =
+                  //                         _editNameController.text.trim();
+                  //                     _task.value.name =
+                  //                         _editNameController.text.trim();
+                  //                   });
+
+                  //                   Navigator.pop(context); // Close the popup
+                  //                 },
+                  //                 isLoading: false,
+                  //                 usePrimaryColor: false,
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ),
+                  //       );
+                  //     },
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         const Icon(
+                  //           Icons.edit,
+                  //           color: Colors.white,
+                  //         ),
+                  //         CustomTextWidget(
+                  //          text: widget.reportName,
+                          
+                  //           fontSize: 18.0,
+                  //           fontWeight: FontWeight.w600,
+                  //           textColor: Colors.white,
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                 ),
               ],
               body: Container(
@@ -276,7 +284,8 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
               SizedBox(
                 width: 150,
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CustomTextWidget(
                       text:
@@ -308,75 +317,77 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                   ],
                 ),
               ),
+              const SizedBox(),
+              const SizedBox()
               // if (!_task.value.isDefault)
-              PopupMenuButton<int>(
-                onSelected: (value) {
-                  if (value == 1) {
-                    if (_task.value.pages[_task.value.pages.length - 1].sections
-                        .isNotEmpty) {
-                      _task.value.pages.add(MyPage(sections: []));
-                      _task.refresh();
-                    } else {
-                      ToastMessage.showToastMessage(
-                          message:
-                              'Please Add at least one section in the current page.',
-                          backgroundColor: Colors.red);
-                    }
-                  } else if (value == 2) {
-                    if (_currentPage.value != 0) {
-                      debugPrint('Removing Page: ${_currentPage.value}');
-                      // _task.value.pages.removeLast();
-                      _task.value.pages.removeAt(_currentPage.value);
-                      _pageController.jumpToPage(_task.value.pages.length - 1);
-                      _task.refresh();
-                    }
-                  } else {
-                    showAddSectionPopup(context);
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 1,
-                    child: Row(
-                      children: [
-                        Icon(Icons.chrome_reader_mode),
-                        SizedBox(width: 10),
-                        CustomTextWidget(
-                            text: "Add Page", textColor: Colors.black)
-                      ],
-                    ),
-                  ),
-                  if (_currentPage.value != 0)
-                    const PopupMenuItem(
-                      value: 2,
-                      child: Row(
-                        children: [
-                          Icon(Icons.list),
-                          SizedBox(width: 10),
-                          CustomTextWidget(
-                              text: "Remove Page", textColor: Colors.black)
-                        ],
-                      ),
-                    ),
-                  const PopupMenuItem(
-                    value: 3,
-                    child: Row(
-                      children: [
-                        Icon(Icons.list),
-                        SizedBox(width: 10),
-                        CustomTextWidget(
-                            text: "Add Section", textColor: Colors.black)
-                      ],
-                    ),
-                  ),
-                ],
-                offset: const Offset(0, 50),
-                color: Colors.white,
-                elevation: 2,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-              )
+              // PopupMenuButton<int>(
+              //   onSelected: (value) {
+              //     if (value == 1) {
+              //       if (_task.value.pages[_task.value.pages.length - 1].sections
+              //           .isNotEmpty) {
+              //         _task.value.pages.add(MyPage(sections: []));
+              //         _task.refresh();
+              //       } else {
+              //         ToastMessage.showToastMessage(
+              //             message:
+              //                 'Please Add at least one section in the current page.',
+              //             backgroundColor: Colors.red);
+              //       }
+              //     } else if (value == 2) {
+              //       if (_currentPage.value != 0) {
+              //         debugPrint('Removing Page: ${_currentPage.value}');
+              //         // _task.value.pages.removeLast();
+              //         _task.value.pages.removeAt(_currentPage.value);
+              //         _pageController.jumpToPage(_task.value.pages.length - 1);
+              //         _task.refresh();
+              //       }
+              //     } else {
+              //       showAddSectionPopup(context);
+              //     }
+              //   },
+              //   itemBuilder: (context) => [
+              //     const PopupMenuItem(
+              //       value: 1,
+              //       child: Row(
+              //         children: [
+              //           Icon(Icons.chrome_reader_mode),
+              //           SizedBox(width: 10),
+              //           CustomTextWidget(
+              //               text: "Add Page", textColor: Colors.black)
+              //         ],
+              //       ),
+              //     ),
+              //     if (_currentPage.value != 0)
+              //       const PopupMenuItem(
+              //         value: 2,
+              //         child: Row(
+              //           children: [
+              //             Icon(Icons.list),
+              //             SizedBox(width: 10),
+              //             CustomTextWidget(
+              //                 text: "Remove Page", textColor: Colors.black)
+              //           ],
+              //         ),
+              //       ),
+              //     const PopupMenuItem(
+              //       value: 3,
+              //       child: Row(
+              //         children: [
+              //           Icon(Icons.list),
+              //           SizedBox(width: 10),
+              //           CustomTextWidget(
+              //               text: "Add Section", textColor: Colors.black)
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              //   offset: const Offset(0, 50),
+              //   color: Colors.white,
+              //   elevation: 2,
+              //   shape: const RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.all(Radius.circular(12)),
+              //   ),
+              // )
               // else
               //   const IconButton(
               //       onPressed: null,
@@ -458,7 +469,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                             );
                           },
                           // showIcons: true,
-                          showIcons: _task.value.isDefault ? true : true,
+                          showIcons: _task.value.isDefault ? false : false,
                           onAdd: () {
                             _hintTextController.clear();
                             showAddElementPopup(context, index, false, false,
@@ -621,162 +632,238 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                   ),
                 ),
               Visibility(
-                visible: true,
+                visible:widget.isTemplate == true ?  false : true,
                 //  _task.value.pages[0].sections.isEmpty
                 //         ? false
                 //         : true,
                 child: Flexible(
                   child: CustomButton(
                     isLoading: isLoading.value,
-                    buttonText: widget.task == null
-                        ? widget.isTemplate
-                            ? 'Add Template'
-                            : 'Submit Task'
-                        : _task.value.isDefault
-                            ? 'Add Template'
-                            : 'The Update',
+                    buttonText: 'Update',
+                    // widget.task == null
+                    //     ? widget.isTemplate
+                    //         ? 'Add Template'
+                    //         : 'Submit Task'
+                    //     : _task.value.isDefault
+                    //         ? 'Add Template'
+                    //         : 'The Update',
                     onTap: () {
-                      if (widget.task == null) {
-                        if (widget.isTemplate) {
-                          // Add Template
-                          onSubmitTask(_task.value, _attachments,
-                              isTemplate: true);
-                        } else {
-                          // Submit Newly Created Task
-
-                          showCustomPopup(
-                            context: context,
-                            width: context.width * 0.6,
-                            widget: Form(
-                              key: _validateEmail,
-                              child: Column(
-                                children: [
-                                  const CustomTextWidget(
-                                    text:
-                                        'Enter the name of the Customer you want to send this task as report via emails.',
-                                    fontSize: 10.0,
-                                    maxLines: 5,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  HeadingAndTextfield(
-                                    title: 'Enter Customer Name',
-                                    controller: _customerNameController,
-                                    hintText: 'Customer Name',
-                                    validator: (val) =>
-                                        AppValidator.validateEmptyText(
-                                            value: val,
-                                            fieldName: 'Customer Name'),
-                                  ),
-                                  HeadingAndTextfield(
-                                    title: 'Enter Customer Email',
-                                    controller: _customerEmailController,
-                                    hintText: 'Customer Email',
-                                    validator: (val) =>
-                                        AppValidator.validateEmail(value: val),
-                                  ),
-                                  // HeadingAndTextfield(
-                                  //   title: 'Enter Customer Name',
-                                  //   controller: _customerNameController,
-                                  //   hintText: 'Customer Name',
-                                  //   validator: (p0) {
-                                  //     AppValidator.validateEmptyText(
-                                  //       fieldName: 'Customer Name',
-                                  //       value: p0,
-                                  //     );
-                                  //     return null;
-                                  //   },
-                                  // ),
-                                  // HeadingAndTextfield(
-                                  //   title: 'Enter Customer Email',
-                                  //   controller: _customerEmailController,
-                                  //   hintText: 'Customer Email',
-                                  //   validator: (p0) {
-                                  //     AppValidator.validateEmptyText(
-                                  //       fieldName: 'Customer Email',
-                                  //       value: p0,
-                                  //     );
-                                  //     return null;
-                                  //   },
-                                  // ),
-                                  Obx(
-                                    () => CustomButton(
-                                      buttonText: 'Send Report',
-                                      onTap: () {
-                                        if (_validateEmail.currentState!
-                                            .validate()) {
-                                          if (_customerNameController
-                                                  .text.isNotEmpty &&
-                                              _customerEmailController
-                                                  .text.isNotEmpty) {
-                                            print(_task.value.isTemplate);
-                                            print(_task.value.isForm);
-                                            debugPrint('SubmittingTask');
-                                            _task.value.customerName =
-                                                _customerNameController.text
-                                                    .trim();
-                                            _task.value.customerEmail =
-                                                _customerEmailController.text
-                                                    .trim();
-                                            // print(
-                                            //     'Customer Name: ${_task.value.customerName}');
-                                            // print(
-                                            //     'Customer Email: ${_task.value.customerEmail}');
-                                            onSubmitTask(
-                                                _task.value, _attachments);
-                                          } else {
-                                            ToastMessage.showToastMessage(
-                                                message:
-                                                    'Please Enter Customer Name and Email',
-                                                backgroundColor: Colors.red);
-                                          }
-                                        }
-                                      },
-                                      isLoading: isLoading.value,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-                      } else {
-                        debugPrint('UpdatingTask');
-                        print('Updating Task: ${_task.value.toMap()}');
-                        _task.value.isDefault
-                            ? 
-                                onSubmitTask(_task.value, _attachments,
-                                    isTemplate: true)
-                                // controller.refreshTasks(true);
-                            
-
-                            // CustomPopup.show(
-                            //     context: context,
-                            //     reportNameController: reportNameController,
-                            //     controller: controller,
-                            //     universalController: universalController,
-                            //     currentPage: _currentPage.value,
-                            //     onTap: () {
-                            //       Get.back();
-                            //       onUpdateTask(
-                            //     _task.value,
-                            //     _attachments,
-                            //   );
-                            //     //   Get.to( CustomTaskScreen(
-                            //     //   reportName: reportNameController.text.trim(),
-                            //     //  isTemplate:  true,
-                            //     // isDefault: false,
-                            //     //    )
-                            //     // );
-                            //       // onSubmitTask(_task.value, _attachments,
-                            //       //     isTemplate: true);
-
-                            //     }
-                            //     )
-                            : onUpdateTask(
+                      onUpdateTask(
                                 _task.value,
                                 _attachments,
                               );
-                      }
+                      //  showCustomPopup(
+                      //       context: context,
+                      //       width: context.width * 0.6,
+                      //       widget: Form(
+                      //         key: _validateEmail,
+                      //         child: Column(
+                      //           children: [
+                      //             const CustomTextWidget(
+                      //               text:
+                      //                   'Enter the name of the Customer you want to send this task as report via emails.',
+                      //               fontSize: 10.0,
+                      //               maxLines: 5,
+                      //               textAlign: TextAlign.center,
+                      //             ),
+                      //             HeadingAndTextfield(
+                      //               title: 'Enter Customer Name',
+                      //               controller: _customerNameController,
+                      //               hintText: 'Customer Name',
+                      //               validator: (val) =>
+                      //                   AppValidator.validateEmptyText(
+                      //                       value: val,
+                      //                       fieldName: 'Customer Name'),
+                      //             ),
+                      //             HeadingAndTextfield(
+                      //               title: 'Enter Customer Email',
+                      //               controller: _customerEmailController,
+                      //               hintText: 'Customer Email',
+                      //               validator: (val) =>
+                      //                   AppValidator.validateEmail(value: val),
+                      //             ),
+                     
+                      //             Obx(
+                      //               () => CustomButton(
+                      //                 buttonText: 'Send Report',
+                      //                 onTap: () {
+                      //                   if (_validateEmail.currentState!
+                      //                       .validate()) {
+                      //                     if (_customerNameController
+                      //                             .text.isNotEmpty &&
+                      //                         _customerEmailController
+                      //                             .text.isNotEmpty) {
+                      //                       print(_task.value.isTemplate);
+                      //                       print(_task.value.isForm);
+                      //                       debugPrint('SubmittingTask');
+                      //                       _task.value.customerName =
+                      //                           _customerNameController.text
+                      //                               .trim();
+                      //                       _task.value.customerEmail =
+                      //                           _customerEmailController.text
+                      //                               .trim();
+                      //                       // print(
+                      //                       //     'Customer Name: ${_task.value.customerName}');
+                      //                       // print(
+                      //                       //     'Customer Email: ${_task.value.customerEmail}');
+                      //                       onSubmitTask(
+                      //                           _task.value, _attachments);
+                      //                     } else {
+                      //                       ToastMessage.showToastMessage(
+                      //                           message:
+                      //                               'Please Enter Customer Name and Email',
+                      //                           backgroundColor: Colors.red);
+                      //                     }
+                      //                   }
+                      //                 },
+                      //                 isLoading: isLoading.value,
+                      //               ),
+                      //             )
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     );
+                      // if (widget.task == null) {
+                      //   if (widget.isTemplate) {
+                      //     // Add Template
+                      //     onSubmitTask(_task.value, _attachments,
+                      //         isTemplate: true);
+                      //   } else {
+                      //     // Submit Newly Created Task
+
+                      //     showCustomPopup(
+                      //       context: context,
+                      //       width: context.width * 0.6,
+                      //       widget: Form(
+                      //         key: _validateEmail,
+                      //         child: Column(
+                      //           children: [
+                      //             const CustomTextWidget(
+                      //               text:
+                      //                   'Enter the name of the Customer you want to send this task as report via emails.',
+                      //               fontSize: 10.0,
+                      //               maxLines: 5,
+                      //               textAlign: TextAlign.center,
+                      //             ),
+                      //             HeadingAndTextfield(
+                      //               title: 'Enter Customer Name',
+                      //               controller: _customerNameController,
+                      //               hintText: 'Customer Name',
+                      //               validator: (val) =>
+                      //                   AppValidator.validateEmptyText(
+                      //                       value: val,
+                      //                       fieldName: 'Customer Name'),
+                      //             ),
+                      //             HeadingAndTextfield(
+                      //               title: 'Enter Customer Email',
+                      //               controller: _customerEmailController,
+                      //               hintText: 'Customer Email',
+                      //               validator: (val) =>
+                      //                   AppValidator.validateEmail(value: val),
+                      //             ),
+                      //             // HeadingAndTextfield(
+                      //             //   title: 'Enter Customer Name',
+                      //             //   controller: _customerNameController,
+                      //             //   hintText: 'Customer Name',
+                      //             //   validator: (p0) {
+                      //             //     AppValidator.validateEmptyText(
+                      //             //       fieldName: 'Customer Name',
+                      //             //       value: p0,
+                      //             //     );
+                      //             //     return null;
+                      //             //   },
+                      //             // ),
+                      //             // HeadingAndTextfield(
+                      //             //   title: 'Enter Customer Email',
+                      //             //   controller: _customerEmailController,
+                      //             //   hintText: 'Customer Email',
+                      //             //   validator: (p0) {
+                      //             //     AppValidator.validateEmptyText(
+                      //             //       fieldName: 'Customer Email',
+                      //             //       value: p0,
+                      //             //     );
+                      //             //     return null;
+                      //             //   },
+                      //             // ),
+                      //             Obx(
+                      //               () => CustomButton(
+                      //                 buttonText: 'Send Report',
+                      //                 onTap: () {
+                      //                   if (_validateEmail.currentState!
+                      //                       .validate()) {
+                      //                     if (_customerNameController
+                      //                             .text.isNotEmpty &&
+                      //                         _customerEmailController
+                      //                             .text.isNotEmpty) {
+                      //                       print(_task.value.isTemplate);
+                      //                       print(_task.value.isForm);
+                      //                       debugPrint('SubmittingTask');
+                      //                       _task.value.customerName =
+                      //                           _customerNameController.text
+                      //                               .trim();
+                      //                       _task.value.customerEmail =
+                      //                           _customerEmailController.text
+                      //                               .trim();
+                      //                       // print(
+                      //                       //     'Customer Name: ${_task.value.customerName}');
+                      //                       // print(
+                      //                       //     'Customer Email: ${_task.value.customerEmail}');
+                      //                       onSubmitTask(
+                      //                           _task.value, _attachments);
+                      //                     } else {
+                      //                       ToastMessage.showToastMessage(
+                      //                           message:
+                      //                               'Please Enter Customer Name and Email',
+                      //                           backgroundColor: Colors.red);
+                      //                     }
+                      //                   }
+                      //                 },
+                      //                 isLoading: isLoading.value,
+                      //               ),
+                      //             )
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     );
+                      //   }
+                      // } else {
+                      //   debugPrint('UpdatingTask');
+                      //   print('Updating Task: ${_task.value.toMap()}');
+                      //   _task.value.isDefault
+                      //       ? 
+                      //           onSubmitTask(_task.value, _attachments,
+                      //               isTemplate: true)
+                      //           // controller.refreshTasks(true);
+                            
+
+                      //       // CustomPopup.show(
+                      //       //     context: context,
+                      //       //     reportNameController: reportNameController,
+                      //       //     controller: controller,
+                      //       //     universalController: universalController,
+                      //       //     currentPage: _currentPage.value,
+                      //       //     onTap: () {
+                      //       //       Get.back();
+                      //       //       onUpdateTask(
+                      //       //     _task.value,
+                      //       //     _attachments,
+                      //       //   );
+                      //       //     //   Get.to( CustomTaskScreen(
+                      //       //     //   reportName: reportNameController.text.trim(),
+                      //       //     //  isTemplate:  true,
+                      //       //     // isDefault: false,
+                      //       //     //    )
+                      //       //     // );
+                      //       //       // onSubmitTask(_task.value, _attachments,
+                      //       //       //     isTemplate: true);
+
+                      //       //     }
+                      //       //     )
+                      //       : onUpdateTask(
+                      //           _task.value,
+                      //           _attachments,
+                      //         );
+                      // }
                     },
                   ),
                 ),
@@ -803,10 +890,10 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
               switch (element.type) {
                 case MyCustomItemType.textfield:
                   return HeadingAndTextfield(
-                    showDeleteIcon: _task.value.isDefault ? true : true,
-                    showEditIcon: _task.value.isDefault ? true : true,
-                    showEditTitle: _task.value.isDefault ? true : true,
-                    showAddIcon: _task.value.isDefault ? true : true,
+                    showDeleteIcon: _task.value.isDefault ? false : false,
+                    showEditIcon: _task.value.isDefault ? false : true,
+                    showEditTitle: _task.value.isDefault ? false : false,
+                    showAddIcon: _task.value.isDefault ? false : false,
                     title: element.label ?? '',
                     controller: TextEditingController(text: element.value),
                     onChanged: (String? value) => element.value = value ?? '',
@@ -821,7 +908,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                       int elementIndex = _task.value.pages[currentPage]
                           .sections[sectionIndex].elements
                           .indexOf(element);
-                      showAddElementPopup(context, elementIndex, true, true,
+                      showAddElementPopup(context, elementIndex, false, false,
                           sectionIndex: sectionIndex);
                       _task.refresh();
                     },
@@ -840,17 +927,17 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     },
                   onAddTap: () {
                 int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
-                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                showAddElementPopup(context, elementIndex, false, false,sectionIndex: sectionIndex);
                       _task.refresh();
                     },       
                   );
                 case MyCustomItemType.textarea:
                   return HeadingAndTextfield(
                     maxLines: 5,
-                    showDeleteIcon: _task.value.isDefault ? true : true,
-                    showEditIcon: _task.value.isDefault ? true : true,
-                    showEditTitle: _task.value.isDefault ? true : true,
-                    showAddIcon: _task.value.isDefault ? true : true,
+                    showDeleteIcon: _task.value.isDefault ? false : false,
+                    showEditIcon: _task.value.isDefault ? false : false,
+                    showEditTitle: _task.value.isDefault ? false : false,
+                    showAddIcon: _task.value.isDefault ? false : false,
                     title: element.label ?? '',
                     controller: TextEditingController(text: element.value),
                     onChanged: (String? value) => element.value = value ?? '',
@@ -864,7 +951,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                       int elementIndex = _task.value.pages[currentPage]
                           .sections[sectionIndex].elements
                           .indexOf(element);
-                      showAddElementPopup(context, elementIndex, true, true,
+                      showAddElementPopup(context, elementIndex, false, false,
                           sectionIndex: sectionIndex);
                       _task.refresh();
                     },
@@ -880,7 +967,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     },
                  onAddTap: () {
                 int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
-                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                showAddElementPopup(context, elementIndex, false, false,sectionIndex: sectionIndex);
                       _task.refresh();
                     },    
                   );
@@ -889,10 +976,10 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     options: element.options ?? [],
                     selected: element.value,
                     heading: element.label ?? '',
-                    showDeleteIcon: _task.value.isDefault ? true : true,
-                    showEditIcon: _task.value.isDefault ? true : true,
-                     showEditTitle: _task.value.isDefault ? true : true,
-                     showAddIcon: _task.value.isDefault ? true : true,
+                    showDeleteIcon: _task.value.isDefault ? false : false,
+                    showEditIcon: _task.value.isDefault ? false : false,
+                     showEditTitle: _task.value.isDefault ? false : false,
+                     showAddIcon: _task.value.isDefault ? false : false,
                     onChange: (String value) => element.value = value,
                     onDelete: () {
                       _task.value.pages[currentPage].sections[sectionIndex]
@@ -904,7 +991,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                       int elementIndex = _task.value.pages[currentPage]
                           .sections[sectionIndex].elements
                           .indexOf(element);
-                      showAddElementPopup(context, elementIndex, true, true,
+                      showAddElementPopup(context, elementIndex, false, false,
                           sectionIndex: sectionIndex);
                       _task.refresh();
                     },
@@ -920,7 +1007,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     },  
                    onAddTap: () {
                 int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
-                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                showAddElementPopup(context, elementIndex, false, false,sectionIndex: sectionIndex);
                       _task.refresh();
                     },      
                   );
@@ -944,10 +1031,10 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     //     element.value.isNotEmpty)
                     //     ?
                     onChange: (List<String> values) => element.value = values,
-                    showDeleteIcon: _task.value.isDefault ? true : true,
-                    showEditIcon: _task.value.isDefault ? true : true,
-                    showEditTitle: _task.value.isDefault ? true : true,
-                    showAddIcon: _task.value.isDefault ? true : true,
+                    showDeleteIcon: _task.value.isDefault ? false : false,
+                    showEditIcon: _task.value.isDefault ? false : false,
+                    showEditTitle: _task.value.isDefault ? false : false,
+                    showAddIcon: _task.value.isDefault ? false : false,
 
                     onDelete: () {
                       _task.value.pages[currentPage].sections[sectionIndex]
@@ -959,7 +1046,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                       int elementIndex = _task.value.pages[currentPage]
                           .sections[sectionIndex].elements
                           .indexOf(element);
-                      showAddElementPopup(context, elementIndex, true, true,
+                      showAddElementPopup(context, elementIndex, false, false,
                           sectionIndex: sectionIndex);
                       _task.refresh();
                     },
@@ -975,7 +1062,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     },  
                  onAddTap: () {
                 int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
-                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                showAddElementPopup(context, elementIndex, false, false,sectionIndex: sectionIndex);
                       _task.refresh();
                     },  
                      
@@ -994,8 +1081,8 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                               : attach.name
                           : element.value.toString(),
                       // : listOfAttachments[element.value].name,
-                      readOnly: listOfAttachments.isEmpty ? true : true,
-                       showAddIcon: _task.value.isDefault ? true : true,
+                      readOnly: listOfAttachments.isEmpty ? false : false,
+                       showAddIcon: _task.value.isDefault ? false : false,
                       onTap: () async {
                         int? oldIndex;
                         if (attach != null) {
@@ -1035,7 +1122,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                           }
                         }
                       },
-                      showDeleteIcon: true,
+                      showDeleteIcon: false,
                       onDelete: () {
                         _task.value.pages[currentPage].sections[sectionIndex]
                             .elements
@@ -1047,11 +1134,11 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                         int elementIndex = _task.value.pages[currentPage]
                             .sections[sectionIndex].elements
                             .indexOf(element);
-                        showAddElementPopup(context, elementIndex, true, true,
+                        showAddElementPopup(context, elementIndex, false, false,
                             sectionIndex: sectionIndex);
                         _task.refresh();
                       },
-                      showEditTitle: _task.value.isDefault ? true : true,
+                      showEditTitle: _task.value.isDefault ? false : false,
                       editTitle:   () {
                       _editNameDialog(currentPage,(){
                       
@@ -1064,7 +1151,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     },
                 onAddTap: () {
                 int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
-                showAddElementPopup(context, elementIndex, true, false,sectionIndex: sectionIndex);
+                showAddElementPopup(context, elementIndex, false, false,sectionIndex: sectionIndex);
                       _task.refresh();
                     },      
                       showEyeIcon: widget.task == null
@@ -1719,11 +1806,12 @@ void showCustomPopup(
           child: FadeTransition(
               opacity: Tween<double>(begin: 0.5, end: 1.0).animate(animation),
               child: AlertDialog(
-                  insetPadding: const EdgeInsets.all(20),
+                  insetPadding: const EdgeInsets.symmetric(horizontal: 20),
                   scrollable: true,
+                       
                   backgroundColor: Colors.transparent,
                   content: Container(
-                    width: width,
+                    width: double.maxFinite,
                     padding: EdgeInsets.symmetric(
                         horizontal: 24.0, vertical: context.height * 0.05),
                     decoration: const BoxDecoration(
