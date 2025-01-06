@@ -25,7 +25,7 @@ class CategoriesController extends GetxController {
 
     try {
       categoriesResponse.value = await repository.fetchAllCategories();
-       print('Fetched Categories: ${categoriesResponse.value?.data}');
+       debugPrint('Fetched Categories: ${categoriesResponse.value?.data}');
     } catch (e) {
       errorMessage.value = 'Failed to load categories: $e';
     } finally {
@@ -39,13 +39,14 @@ class CategoriesController extends GetxController {
   var selectedCategoryId = ''.obs;
   var selectedCategoryDataId = ''.obs;
   var selectedCategoryDataName = ''.obs;
-void onInit(){
+@override
+  void onInit(){
   super.onInit();
   fetchCategories();
     selectedCategory.value = 'Engine';
     fetchEngines(selectedCategory.value, '');
     fetchAllEquipments();
-  // print('assadadasddasd${categoriesResponse.value}');
+ 
 }
 
 
@@ -64,11 +65,11 @@ void onInit(){
 
     try {
       enginesResponse.value = await repository.fetchCategoryData(category, search);
-      print('Engines fetched: ${enginesResponse.value?.engines?.length}');
-      print('Engines fetched: ${enginesResponse.value?.engines[0].categoryId}');
+      debugPrint('Engines fetched: ${enginesResponse.value?.engines?.length}');
+      debugPrint('Engines fetched: ${enginesResponse.value?.engines[0].categoryId}');
     } catch (e) {
       errorMessage.value = 'Failed to load engines: $e';
-      print('Engines fetched: $e');
+      debugPrint('Engines fetched: $e');
     } finally {
       isLoading.value = false;
     }
@@ -79,11 +80,11 @@ void onInit(){
 
     try {
       equipmentResponse.value = await repository.fetchEquipments();
-      print('Engines fetched: ${equipmentResponse.value?.engines?.length}');
-      print('Engines fetched: ${equipmentResponse.value?.engines[0].categoryId}');
+      debugPrint('Engines fetched: ${equipmentResponse.value?.engines?.length}');
+      debugPrint('Engines fetched: ${equipmentResponse.value?.engines[0].categoryId}');
     } catch (e) {
       errorMessage.value = 'Failed to load engines: $e';
-      print('Engines fetched: $e');
+      debugPrint('Engines fetched: $e');
     } finally {
       isLoading.value = false;
     }

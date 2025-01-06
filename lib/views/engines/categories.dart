@@ -1,24 +1,22 @@
-import 'package:app/helpers/appcolors.dart';
-import 'package:app/helpers/custom_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import '../../controllers/category_controller.dart';
-import '../../helpers/reusable_textfield.dart';
-import '../../helpers/tabbar.dart';
 import '../../services/category_service.dart';
 
 
 class CategoriesView extends StatelessWidget {
-  final CategoriesController controller = Get.put(CategoriesController(repository: CategoriesRepository()));
+
+
+  const CategoriesView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final CategoriesController controller = Get.put(CategoriesController(repository: CategoriesRepository()));
     return   Scaffold(
-      appBar: AppBar(title: Text('Select Category')),
+      appBar: AppBar(title: const Text('Select Category')),
       body: Obx(() {
         if (controller.categoriesResponse.value == null) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         final categories = controller.categoriesResponse.value?.data ?? [];
@@ -29,7 +27,7 @@ class CategoriesView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DropdownButton<String>(
-                hint: Text("Select Category"),
+                hint: const Text("Select Category"),
                 value: controller.selectedCategoryName.value.isEmpty ? null : controller.selectedCategoryName.value,
                 isExpanded: true,
                 items: categories.map((category) {
@@ -51,7 +49,7 @@ class CategoriesView extends StatelessWidget {
                   controller.selectedCategoryId.value = controller.selectedCategoryId.value;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text('Selected Category Name: ${controller.selectedCategoryName.value}'),
               Text('Selected Category ID: ${controller.selectedCategoryId.value}'),
             ],

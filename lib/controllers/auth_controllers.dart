@@ -110,7 +110,7 @@ class AuthController extends GetxController {
               message: 'Login Successfully', backgroundColor: Colors.green);
           String token = response['token'];
           storage.write('token', token);
-          print('TokenAtStorage: ${storage.read('token')}');
+          debugPrint('TokenAtStorage: ${storage.read('token')}');
           storage.write('user_info', response['user']);
           debugPrint('UserAtStorage: ${storage.read('user_info')}');
           Get.offAll(() => const DashboardScreen(),
@@ -118,7 +118,7 @@ class AuthController extends GetxController {
           emailController.clear();
           passwordController.clear();
         } else if (response['message'] == 'Please Verify Your Email First') {
-          Get.to(() => VerifyEmailScreen(), transition: Transition.rightToLeft);
+          Get.to(() => const VerifyEmailScreen(), transition: Transition.rightToLeft);
           ToastMessage.showToastMessage(
               message: 'Please Verify Your Email First',
               backgroundColor: Colors.green);
@@ -198,7 +198,7 @@ class AuthController extends GetxController {
           debugPrint('TokenReceived: $token');
           storage.write('token', token);
           verifyOtpForForgetPassword
-              ? Get.offAll(() => ChangePasswordScreen())
+              ? Get.offAll(() => const ChangePasswordScreen())
               : Get.offAll(() => const DashboardScreen());
           emailController.clear();
           otpController.clear();

@@ -4,6 +4,7 @@ class MyCustomTask {
   String? customerName, customerEmail;
   bool isForm, isTemplate, isDefault;
   final List<MyPage> pages;
+   String? signature;
 
   MyCustomTask({
     this.id,
@@ -14,6 +15,7 @@ class MyCustomTask {
     required this.isTemplate,
     required this.isDefault,
     required this.pages,
+    this.signature,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,7 +26,9 @@ class MyCustomTask {
       'customer_name': customerName,
       'customer_email': customerEmail,
       'pages': pages.map((e) => e.toMap()).toList(),
-      'isDefault': isDefault.toString()
+      'isDefault': isDefault.toString(),
+      'signature': signature,
+
     };
   }
 
@@ -42,6 +46,7 @@ class MyCustomTask {
           : List<MyPage>.from(
               map["pages"]!.map((x) => MyPage.fromMap(x)),
             ),
+      signature: map['signature']
     );
   }
 }

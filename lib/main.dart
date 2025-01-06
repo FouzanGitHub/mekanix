@@ -11,7 +11,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
-import 'views/engines/categories.dart';
 
 final GetStorage storage = GetStorage();
 
@@ -38,7 +37,10 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: AuthCheck());
+        home: AuthCheck()
+        //  SignatureScreen() 
+        
+        );
   }
 }
 
@@ -50,7 +52,7 @@ class AuthCheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('IsFirstTime: ${storage.read('isFirstTime')}');
+    debugPrint('IsFirstTime: ${storage.read('isFirstTime')}');
     return FutureBuilder(
       future: authStatusCheckController._initialize(),
       builder: (context, snapshot) {
@@ -67,16 +69,16 @@ class AuthCheck extends StatelessWidget {
             return const OnBoardingScreen();
           } else if (storage.read('token') != null ||
               authStatusCheckController.isTokenValid.value) {
-            print(
+            debugPrint(
                 'IsTokenValid: ${authStatusCheckController.isTokenValid.value}');
-            print('Token: ${storage.read('token')}');
+            debugPrint('Token: ${storage.read('token')}');
             return const DashboardScreen();
             // return  CategoriesView();
           
           } else {
-            print(
+            debugPrint(
                 'IsTokenValid: ${authStatusCheckController.isTokenValid.value}');
-            print('Token: ${storage.read('token')}');
+            debugPrint('Token: ${storage.read('token')}');
             return const LoginScreen();
           }
         }
@@ -107,7 +109,7 @@ class AuthStatusCheckController extends GetxController {
     var authResponse = await postAuthStateChange();
     bool tokenValid = authResponse['statusCode'] == 200;
     isTokenValid.value = tokenValid;
-    print('IsTokenValid: ${isTokenValid.value}');
+    debugPrint('IsTokenValid: ${isTokenValid.value}');
 
     if (tokenValid) {
       var user = authResponse['user'];

@@ -11,6 +11,7 @@ import 'package:app/helpers/toast.dart';
 import 'package:app/helpers/validator.dart';
 import 'package:app/models/custom_task_model.dart';
 import 'package:app/services/task_service.dart';
+import 'package:app/views/task/Signature/sign_view.dart';
 import 'package:app/views/task/widgets/checkbox.dart';
 import 'package:app/views/task/widgets/heading.dart';
 import 'package:app/views/task/widgets/heading_and_textfield.dart';
@@ -20,7 +21,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import '../../controllers/engines_controller.dart';
+import '../../controllers/signature_controller.dart';
 import '../../controllers/universal_controller.dart';
 
 class MyAttachmentModel {
@@ -406,94 +407,130 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
     return Column(
       children: [
         Expanded(
-          child: Obx(
-            () => ListView.builder(
-              shrinkWrap: true,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: _task.value.pages[currentPage].sections.length,
-              itemBuilder: (context, index) {
-                final section = _task.value.pages[currentPage].sections[index];
-                return Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: ReUsableContainer(
-                    color: Colors.grey.shade300,
-                    child: Column(
-                      children: [
-                        ContainerHeading(
-                          heading: section.heading,
-                          headingTap: () {
-                            showCustomPopup(
-                              context: context,
-                              width: context.width * 0.8,
-                              widget: Form(
-                                key: _validateEmail,
-                                child: Column(
-                                  children: [
-                                    const CustomTextWidget(
-                                      text: 'Edit Heading',
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                      maxLines: 1,
-                                      textAlign: TextAlign.center,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(
+                  () => ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _task.value.pages[currentPage].sections.length,
+                    itemBuilder: (context, index) {
+                      final section = _task.value.pages[currentPage].sections[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ReUsableContainer(
+                          color: Colors.grey.shade300,
+                          child: Column(
+                            children: [
+                              ContainerHeading(
+                                heading: section.heading,
+                                headingTap: () {
+                                  showCustomPopup(
+                                    context: context,
+                                    width: context.width * 0.8,
+                                    widget: Form(
+                                      key: _validateEmail,
+                                      child: Column(
+                                        children: [
+                                          const CustomTextWidget(
+                                            text: 'Edit Heading',
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold,
+                                            maxLines: 1,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          HeadingAndTextfield(
+                                            title: 'New Heading Name',
+                                            controller: _editNameController,
+                                            hintText: 'Enter Heading Name',
+                                            validator: (val) =>
+                                                AppValidator.validateEmail(
+                                                    value: val),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          CustomButton(
+                                            buttonText: 'Done',
+                                            onTap: () {
+                                              setState(() {
+                                                _task.value.pages[currentPage]
+                                                        .sections[index].heading =
+                                                    _editNameController.text.trim();
+                                              });
+                                              Get.back();
+                                            },
+                                            isLoading: false,
+                                            usePrimaryColor: false,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    HeadingAndTextfield(
-                                      title: 'New Heading Name',
-                                      controller: _editNameController,
-                                      hintText: 'Enter Heading Name',
-                                      validator: (val) =>
-                                          AppValidator.validateEmail(
-                                              value: val),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    CustomButton(
-                                      buttonText: 'Done',
-                                      onTap: () {
-                                        setState(() {
-                                          _task.value.pages[currentPage]
-                                                  .sections[index].heading =
-                                              _editNameController.text.trim();
-                                        });
-                                        Get.back();
-                                      },
-                                      isLoading: false,
-                                      usePrimaryColor: false,
-                                    ),
-                                  ],
-                                ),
+                                  );
+                                },
+                                // showIcons: true,
+                                showIcons: _task.value.isDefault ? false : false,
+                                onAdd: () {
+                                  _hintTextController.clear();
+                                  showAddElementPopup(context, index, false, false,
+                                      sectionIndex: index);
+                                  _task.refresh();
+                                },
+                                onDelete: () {
+                                  _task.value.pages[currentPage].sections
+                                      .removeAt(index);
+                                  _task.refresh();
+                                },
                               ),
-                            );
-                          },
-                          // showIcons: true,
-                          showIcons: _task.value.isDefault ? false : false,
-                          onAdd: () {
-                            _hintTextController.clear();
-                            showAddElementPopup(context, index, false, false,
-                                sectionIndex: index);
-                            _task.refresh();
-                          },
-                          onDelete: () {
-                            _task.value.pages[currentPage].sections
-                                .removeAt(index);
-                            _task.refresh();
-                          },
+                              _buildSectionElements(
+                                index,
+                                currentPage,
+                              ),
+                         
+                           
+                            ],
+                          ),
                         ),
-                        _buildSectionElements(
-                          index,
-                          currentPage,
-                        ),
-                      ],
+                      );
+                    },
+                  ),
+                ),
+              const Padding(
+                 padding:  EdgeInsets.symmetric(horizontal: 10.0),
+                 child:  CustomTextWidget(text: 'Signature',
+                 fontSize: 16,
+                 fontWeight: FontWeight.bold,
+                 ),
+               ),
+               const SizedBox(height: 15,),
+                 Padding(
+                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child:   widget.isTemplate == true 
+                  ? const SignatureWidget()
+                  : _task.value.signature == '' 
+                  ? const SignatureWidget()
+                  : Container(
+                    height: 300,
+                    width: double.maxFinite,
+                    decoration: BoxDecoration(
+                    color: AppColors.lightPrimaryColor,
+                    borderRadius: BorderRadius.circular(15),
+                    image: DecorationImage(image:  NetworkImage(_task.value.signature ?? '')
+                    )
                     ),
                   ),
-                );
-              },
+                ),
+          
+              ],
             ),
           ),
         ),
+     
         _task.value.pages.length == 1
             ? SaveAndSubmitButton()
             : _currentPage.value == 0
@@ -501,6 +538,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                 : _currentPage.value == _task.value.pages.length - 1
                     ? SaveAndSubmitButton()
                     : BackAndNextButton(pageController: _pageController),
+    
       ],
     );
   }
@@ -579,18 +617,13 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                                   onTap: () {
                                     if (_validateEmail.currentState!
                                         .validate()) {
-                                      if (_customerNameController
-                                              .text.isNotEmpty &&
-                                          _customerEmailController
-                                              .text.isNotEmpty) {
+                                      if (_customerNameController.text.isNotEmpty &&
+                                          _customerEmailController.text.isNotEmpty) {
                                         _task.value.isTemplate = false;
                                         _task.value.isForm = true;
 
-                                        _task.value.customerName =
-                                            _customerNameController.text.trim();
-                                        _task.value.customerEmail =
-                                            _customerEmailController.text
-                                                .trim();
+                                        _task.value.customerName =_customerNameController.text.trim();
+                                        _task.value.customerEmail =_customerEmailController.text.trim();
                                         print(
                                             'Customer Name: ${_task.value.customerName}');
                                         print(
@@ -598,9 +631,8 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                                         onSubmitTask(_task.value, _attachments);
                                       } else {
                                         ToastMessage.showToastMessage(
-                                            message:
-                                                'Please Enter Customer Name and Email',
-                                            backgroundColor: Colors.red);
+                                        message:'Please Enter Customer Name and Email',
+                                        backgroundColor: Colors.red);
                                       }
                                     }
                                   },
@@ -1032,22 +1064,17 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                     //     ?
                     onChange: (List<String> values) => element.value = values,
                     showDeleteIcon: _task.value.isDefault ? false : false,
-                    showEditIcon: _task.value.isDefault ? false : false,
-                    showEditTitle: _task.value.isDefault ? false : false,
-                    showAddIcon: _task.value.isDefault ? false : false,
+                    showEditIcon: _task.value.isDefault   ? false : false,
+                    showEditTitle: _task.value.isDefault  ? false : false,
+                    showAddIcon: _task.value.isDefault    ? false : false,
 
                     onDelete: () {
-                      _task.value.pages[currentPage].sections[sectionIndex]
-                          .elements
-                          .remove(element);
+                      _task.value.pages[currentPage].sections[sectionIndex].elements.remove(element);
                       _task.refresh();
                     },
                     onEdit: () {
-                      int elementIndex = _task.value.pages[currentPage]
-                          .sections[sectionIndex].elements
-                          .indexOf(element);
-                      showAddElementPopup(context, elementIndex, false, false,
-                          sectionIndex: sectionIndex);
+                      int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
+                      showAddElementPopup(context, elementIndex, false, false, sectionIndex: sectionIndex);
                       _task.refresh();
                     },
                   onEditTitle: () {
@@ -1124,18 +1151,13 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                       },
                       showDeleteIcon: false,
                       onDelete: () {
-                        _task.value.pages[currentPage].sections[sectionIndex]
-                            .elements
-                            .remove(element);
+                        _task.value.pages[currentPage].sections[sectionIndex].elements.remove(element);
                         _task.refresh();
                       },
 
                       onEdit: () {
-                        int elementIndex = _task.value.pages[currentPage]
-                            .sections[sectionIndex].elements
-                            .indexOf(element);
-                        showAddElementPopup(context, elementIndex, false, false,
-                            sectionIndex: sectionIndex);
+                        int elementIndex = _task.value.pages[currentPage].sections[sectionIndex].elements.indexOf(element);
+                        showAddElementPopup(context, elementIndex, false, false, sectionIndex: sectionIndex);
                         _task.refresh();
                       },
                       showEditTitle: _task.value.isDefault ? false : false,
@@ -1188,13 +1210,10 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
                                                 return Center(
                                                   child:
                                                       CircularProgressIndicator(
-                                                    value: loadingProgress
-                                                                .expectedTotalBytes !=
+                                                    value: loadingProgress.expectedTotalBytes !=
                                                             null
-                                                        ? loadingProgress
-                                                                .cumulativeBytesLoaded /
-                                                            loadingProgress
-                                                                .expectedTotalBytes!
+                                                        ? loadingProgress.cumulativeBytesLoaded /
+                                                            loadingProgress.expectedTotalBytes!
                                                         : null,
                                                   ),
                                                 );
@@ -1605,9 +1624,10 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
     List<Uint8List> attachments, {
     bool isTemplate = false,
   }) async {
-    debugPrint('SubmittingTask');
-    print('IsTemplateValue: ${e.isTemplate}');
-    print('IsFormValue: ${e.isForm}');
+  SignatureController2  controller2 = Get.put(SignatureController2());
+     debugPrint('SubmittingTask');
+    debugPrint('IsTemplateValue: ${e.isTemplate}');
+    debugPrint('IsFormValue: ${e.isForm}');
 
     // if (isTemplate) {
     //   e.isTemplate = true;
@@ -1618,19 +1638,24 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
     try {
       isLoading(true);
       final urls = <String>[];
-      TaskResponse response =
-          await TaskService().addCustomTaskFiles(attachments: attachments);
+      TaskResponse response = await TaskService().addCustomTaskFiles(attachments: attachments);
       if (response.isSuccess) {
         print(response.data);
         urls.assignAll(response.data);
+        
         for (MySection section in e.pages[_currentPage.value].sections) {
+          // e.signature = 'https://api.mekanixhub.com/uploads/files/1736147101269-316894601.png';
+          e.signature = controller2.signaturePathUrl.value;
           for (MyCustomElementModel element in section.elements) {
             if (element.type == MyCustomItemType.attachment &&
                 element.value is int) {
               element.value = urls[element.value];
+          
             }
           }
+        // e.signature = 'https://api.mekanixhub.com/uploads/files/1736147101269-316894601.png';
         }
+       
         // print('IS_TEMPLATE: $isTemplate');
         // print('IsTemplateValue: ${e.isTemplate}');
         // print('IsFormValue: ${e.isForm}');
@@ -1642,8 +1667,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
         // print('IsFormValueAfterChange: ${e.isForm}');
         bool isSuccess = false;
         if (isTemplate) {
-          isSuccess =
-              await TaskService().createCustomTemplate(taskData: e.toMap());
+          isSuccess = await TaskService().createCustomTemplate(taskData: e.toMap());
         } else {
           isSuccess = await TaskService().createCustomTask(taskData: e.toMap());
         }
@@ -1665,14 +1689,14 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
           Get.back();
         }
       } else {
-        print("Error in onSubmitTask");
+        debugPrint("Error in onSubmitTask");
         ToastMessage.showToastMessage(
             message: 'Failed to create task, please try again',
             backgroundColor: Colors.red);
         urls.clear();
       }
     } catch (e) {
-      print("Error in onSubmitTask: $e");
+      debugPrint("Error in onSubmitTask: $e");
       ToastMessage.showToastMessage(
           message: 'Something went wrong, please try again',
           backgroundColor: Colors.red);
@@ -1682,17 +1706,18 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
   }
 
   onUpdateTask(MyCustomTask e, List<Uint8List> attachments) async {
+    SignatureController2  controller2 = Get.put(SignatureController2());
     try {
       isLoading(true);
       final urls = <String>[];
-      TaskResponse response =
-          await TaskService().addCustomTaskFiles(attachments: attachments);
+      TaskResponse response = await TaskService().addCustomTaskFiles(attachments: attachments);
       if (response.isSuccess) {
         urls.assignAll(response.data);
         print(urls);
-        print('Updated Task Name: ${e.name}');
-
+        debugPrint('Updated Task Name: ${e.name}');
+       
         for (MySection section in e.pages[_currentPage.value].sections) {
+        e.signature = controller2.signaturePathUrl.value;
           for (MyCustomElementModel element in section.elements) {
             if (element.type == MyCustomItemType.attachment &&
                 element.value is int) {
@@ -1700,25 +1725,24 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
             }
           }
         }
-        final isSuccess = await TaskService()
-            .updateCustomTask(taskData: e.toMap(), taskId: e.id ?? '');
+        final isSuccess = await TaskService().updateCustomTask(taskData: e.toMap(), taskId: e.id ?? '');
         if (isSuccess) {
           ToastMessage.showToastMessage(
-              message: 'Task Updated Successfully${e.name}',
+              message: 'Task Updated Successfully${e.signature}',
               backgroundColor: Colors.green);
           final CustomTaskController controller = Get.find();
           controller.getAllCustomTasks();
           Get.back();
         }
       } else {
-        print("Error in onUpdateTask");
+        debugPrint("Error in onUpdateTask");
         ToastMessage.showToastMessage(
             message: 'Failed to update task, please try again',
             backgroundColor: Colors.red);
         urls.clear();
       }
     } catch (e) {
-      print("Error in onUpdateTask: $e");
+      debugPrint("Error in onUpdateTask: $e");
       ToastMessage.showToastMessage(
           message: 'Something went wrong, please try again',
           backgroundColor: Colors.red);

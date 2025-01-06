@@ -20,11 +20,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:printing/printing.dart';
+
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:pdf/widgets.dart' as pw;
+
 import '../../services/category_service.dart';
 
 import 'category_dialog.dart';
@@ -458,8 +456,8 @@ class DialogSecondView extends StatelessWidget {
 
         // Capture the QR code as an image
         final recorder = PictureRecorder();
-        final canvas = Canvas(recorder, Rect.fromPoints(Offset(0, 0), Offset(200, 200)));
-        qrPainter.paint(canvas, Size(200, 200));
+        final canvas = Canvas(recorder, Rect.fromPoints(const Offset(0, 0), const Offset(200, 200)));
+        qrPainter.paint(canvas, const Size(200, 200));
 
         final picture = recorder.endRecording();
         final img = await picture.toImage(200, 200);
@@ -494,7 +492,7 @@ class DialogSecondView extends StatelessWidget {
             message: 'Failed to download QR code Image: $e',
             backgroundColor: Colors.red);
      
-        print('${e}');
+        debugPrint('$e');
       }
     
   }
@@ -622,8 +620,7 @@ void _showEditPopup(
   controller.engineSubtitle.text = model.subname ?? '';
   controller2.selectedCategoryId.value = model.categoryId ?? '';
   controller2.selectedCategoryName.value = model.categoryName ?? '';
-  final CategoriesController categoryController =
-      Get.put(CategoriesController(repository: CategoriesRepository()));
+  final CategoriesController categoryController =Get.put(CategoriesController(repository: CategoriesRepository()));
 
   // controller.engineType.value = model.isGenerator! ? 'Generator' : 'Compressor';
   // RxString engineImageUrl = ''.obs;

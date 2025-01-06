@@ -11,13 +11,16 @@ import '../../services/category_service.dart';
 
 
 class CategoryDataDialog extends StatelessWidget {
-  final CategoriesController controller = Get.put(CategoriesController(repository: CategoriesRepository()));
+
+
+   CategoryDataDialog({super.key});
+    final CategoriesController controller = Get.put(CategoriesController(repository: CategoriesRepository()));
 //  final EnginesController engineController = Get.put(EnginesController());
  final CustomTaskController taskController = Get.put(CustomTaskController());
   @override
   Widget build(BuildContext context) {
     return   Obx(() {
-      print('${storage.read('token')}');
+      debugPrint('${storage.read('token')}');
          controller.fetchAllEquipments();
         if (controller.equipmentResponse.value == null) {
           return const Center(child: CircularProgressIndicator(color: Colors.orange,));
@@ -45,7 +48,7 @@ class CategoryDataDialog extends StatelessWidget {
                   
                     taskController.engineBrandName.value =  controller.selectedCategoryDataName.value;
                    taskController.engineBrandId.value =  controller.selectedCategoryDataId.value;
-                  print('sadad${  taskController.engineBrandId.value}');
+                  debugPrint('sadad${  taskController.engineBrandId.value}');
                 }, 
           
           );

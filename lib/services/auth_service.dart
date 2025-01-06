@@ -558,10 +558,10 @@ class AuthService {
           'Content-Type': 'application/json',
         });
     if (response.statusCode == 200) {
-      print(response.body);
+      debugPrint(response.body);
       return true;
     } else {
-      print(response.reasonPhrase);
+      debugPrint(response.reasonPhrase);
       return false;
     }
   }
@@ -584,7 +584,7 @@ class AuthService {
       },
     );
 
-    print(response.body);
+    debugPrint(response.body);
 
     if (response.statusCode == 200) {
       // Parse the response body
@@ -598,7 +598,7 @@ class AuthService {
         return responseBody;
       }
     } else {
-      print(response.reasonPhrase);
+      debugPrint(response.reasonPhrase);
       return {'status': 'failed', 'message': 'Invalid OTP'};
     }
   }

@@ -95,7 +95,7 @@ class _TaskScreenState extends State<TaskScreen> {
                       flexibleSpace: ListView(
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          SizedBox(height: 20,),
+                          const SizedBox(height: 20,),
                           Center(child: Obx(()=> CustomTextWidget(
                           text: currentPage == 0 ? 'Submitted Reports' : 'Templates',
                           fontSize: 20,
@@ -466,8 +466,7 @@ class CustomTemplatePopup {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const CustomTextWidget(
-            text:
-                'Please select the equipment first for which you need to create this report.',
+            text:'Please select the equipment first for which you need to create this report.',
             fontSize: 12.0,
             maxLines: 5,
             fontWeight: FontWeight.w600,

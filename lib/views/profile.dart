@@ -88,11 +88,9 @@ class _ProfileSectionState extends State<ProfileSection> {
                     CircleAvatar(
                       radius: 45,
                       backgroundColor: Colors.white,
-                      backgroundImage: universalController
-                              .userImageURL.value.isNotEmpty
+                      backgroundImage: universalController.userImageURL.value.isNotEmpty
                           ? NetworkImage(universalController.userImageURL.value)
-                          : const AssetImage('assets/images/placeholder.png')
-                              as ImageProvider,
+                          : const AssetImage('assets/images/placeholder.png')as ImageProvider,
                     ),
                     if (circularLoading.value)
                       CircularProgressIndicator(

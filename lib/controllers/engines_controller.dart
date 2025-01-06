@@ -137,7 +137,7 @@ class EnginesController extends GetxController {
       engineImage = image;
       engineImageUrl.value = image.path;
       engineImageInBytes = (await engineImage?.readAsBytes())!;
-      print('EngineImageInBytes: $engineImageInBytes');
+      debugPrint('EngineImageInBytes: $engineImageInBytes');
       String updatedImageUrl = await engineService.updateEngineImage(
           engineImageInBytes: engineImageInBytes,
           engineId: model.id ?? '',

@@ -9,6 +9,9 @@ import '../../services/category_service.dart';
 
 
 class CategoryDialog extends StatelessWidget {
+
+
+   CategoryDialog({super.key});
   final CategoriesController controller = Get.put(CategoriesController(repository: CategoriesRepository()));
  final EnginesController engineController = Get.put(EnginesController());
   @override

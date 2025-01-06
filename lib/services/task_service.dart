@@ -295,7 +295,10 @@ class TaskService {
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         debugPrint(responseData['message']);
+            dynamic data = responseData['data'];
+        print('Submitted Signature$data');
         return responseData['status'] == 'success';
+      
       } else {
         debugPrint(
             'Failed to update task, status code: ${response.statusCode} ${response.reasonPhrase}');

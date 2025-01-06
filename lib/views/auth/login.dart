@@ -163,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           controller.emailController.clear();
                                           controller.passwordController.clear();
                                           Get.to(
-                                            () => ForgetPasswordScreen(),
+                                            () => const ForgetPasswordScreen(),
                                             transition: Transition.size,
                                             duration:
                                                 const Duration(seconds: 1),
@@ -200,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       controller.emailController.clear();
                                       controller.passwordController.clear();
                                       Get.to(
-                                        () => SignupScreen(),
+                                        () => const SignupScreen(),
                                         transition: Transition.size,
                                         duration: const Duration(seconds: 1),
                                       );
