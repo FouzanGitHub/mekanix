@@ -1728,7 +1728,7 @@ class _CustomTaskScreenState extends State<CustomTaskScreen> {
         final isSuccess = await TaskService().updateCustomTask(taskData: e.toMap(), taskId: e.id ?? '');
         if (isSuccess) {
           ToastMessage.showToastMessage(
-              message: 'Task Updated Successfully${e.signature}',
+              message: 'Task Updated Successfully${e.name}',
               backgroundColor: Colors.green);
           final CustomTaskController controller = Get.find();
           controller.getAllCustomTasks();

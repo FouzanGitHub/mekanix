@@ -48,27 +48,25 @@ class CategoriesRepository {
         'search': search,
       }),
     );
-  print("Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
+    print("Status Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
     if (response.statusCode == 200) {
-
-      return EnginesResponse.fromJson(json.decode(response.body));
+    return EnginesResponse.fromJson(json.decode(response.body));
     } else {
-     
-      throw Exception('Failed to load engines');
+    throw Exception('Failed to load engines');
     }
   }
  Future<EnginesResponse> fetchEquipments() async {
     final response = await http.post(
       Uri.parse(ApiEndPoints.baseUrl + ApiEndPoints.getCategoriesData),
       headers: {
-        'Content-Type': 'application/json',
-                'Authorization': 'Bearer ${storage.read('token')}',
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${storage.read('token')}',
       },
      
     );
-  print("Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
+   print("Status Code: ${response.statusCode}");
+   print("Response Body: ${response.body}");
     if (response.statusCode == 200) {
 
       return EnginesResponse.fromJson(json.decode(response.body));
