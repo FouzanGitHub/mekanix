@@ -325,7 +325,8 @@ class TaskListView extends StatelessWidget {
                                   isDefault: task.isDefault,
                                 ));
                       },
-                      trailing: task.isDefault 
+                      // trailing: task.isDefault
+                      trailing: isTemplate
                           ? null
                           : InkWell(
                               onTap: () {
